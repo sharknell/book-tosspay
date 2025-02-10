@@ -1,0 +1,11 @@
+{
+  "name": "book-rental",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm --prefix frontend start\" \"npm --prefix backend run dev\""
+  },
+  "dependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
