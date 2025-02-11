@@ -2,11 +2,14 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const db = require("./src/config/db"); // MySQL 연결 파일 불러오기
+const fetch = require("node-fetch");
+
+const bookRoutes = require("./src/routes/bookRoutes");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+app.use("/api/books", bookRoutes);
 // 메인 라우트 - 서버 정상 실행 확인
 app.get("/", async (req, res) => {
   try {
