@@ -17,6 +17,8 @@ export const registerUser = async (email, username, password) => {
 export const loginUser = async (email, password) => {
   try {
     const response = await api.post("/login", { email, password });
+    console.log("accountService:" + response.data);
+
     return response.data;
   } catch (error) {
     throw new Error("로그인 실패");

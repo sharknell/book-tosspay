@@ -1,20 +1,30 @@
-// src/pages/Login.js
 import React, { useState } from "react";
-import { loginUser } from "../services/accountService"; // API 요청 함수
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/accountService";
 
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
       const data = await loginUser(email, password);
+      console.log("로그인 응답 데이터:", data); // 응답 확인
 
       if (data.accessToken) {
-        setUser({ email }); // 로그인 성공 시 사용자 정보 상태 업데이트
+        const userInfo = {
+          email,
+          username: data.username || email.split("@")[0], // username이 없으면 email 앞부분 사용
+          token: data.accessToken,
+        };
+        console.log("저장할 사용자 정보:", userInfo);
+        localStorage.setItem("user", JSON.stringify(userInfo));
+        setUser(userInfo);
         alert("로그인 성공!");
+        navigate("/books");
       } else {
         alert(data.message || "로그인 실패");
       }
