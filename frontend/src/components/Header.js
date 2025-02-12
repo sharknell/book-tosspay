@@ -16,7 +16,9 @@ const Header = ({ user, handleLogout }) => {
           {user ? (
             <>
               <li>
-                <span className="welcome">{user.username} 님</span>
+                <span className="welcome">
+                  {user.username || user.email.split("@")[0]} 님
+                </span>
               </li>
               <li>
                 <button className="logout-btn" onClick={handleLogout}>

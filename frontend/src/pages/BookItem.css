@@ -1,0 +1,102 @@
+/* 카드들을 감싸는 부모 컨테이너 (ul 또는 div) */
+.book-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* 카드들을 중앙 정렬 */
+  gap: 24px; /* 카드 간의 간격을 24px로 증가 */
+  padding: 16px; /* 부모 요소에 padding을 추가하여 카드들 간 간격을 확보 */
+  list-style: none;
+}
+
+/* 기존 .book-item 스타일은 그대로 유지 */
+.book-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px; /* 간격을 좀 더 키워서 여유를 주었음 */
+  padding: 16px;
+  background: #fff;
+  border-radius: 16px; /* 더 부드러운 둥근 모서리 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* 그림자 효과를 강화 */
+  transition: transform 0.2s ease-in-out;
+  width: 100%;
+  max-width: 320px;
+  min-height: 420px; /* 카드의 최소 높이를 키워 여유 공간 추가 */
+}
+
+.book-item:hover {
+  transform: scale(1.05); /* 확대 비율을 조금 더 높여 부드러운 효과 */
+}
+
+.book-item-thumbnail {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 180px; /* 이미지 크기 확대 */
+  height: 250px; /* 이미지 높이를 조금 줄임 */
+  overflow: hidden;
+  border-radius: 12px; /* 둥근 모서리 */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+}
+
+.book-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 이미지를 비율에 맞게 채움 */
+}
+
+.book-item-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  text-align: center;
+  width: 100%;
+}
+
+.book-title {
+  font-size: 1.5rem;
+  font-weight: 700; /* 더 두꺼운 제목 */
+  margin: 12px 0;
+  color: #333;
+}
+
+.book-author {
+  font-size: 1.1rem;
+  color: #777;
+  margin-bottom: 12px;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: #ddd;
+  width: 60%; /* 세로선의 길이를 줄여 디자인에 여유를 추가 */
+  margin: 12px auto; /* 세로선 중앙 정렬 */
+}
+
+.book-description {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.book-link {
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #007bff;
+  transition: color 0.2s;
+  padding: 8px 16px;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  margin-top: 16px; /* 링크와 아래 내용 사이 간격 */
+}
+
+.book-link:hover {
+  color: #fff;
+  background-color: #007bff;
+  text-decoration: none;
+}
