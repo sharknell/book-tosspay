@@ -9,6 +9,7 @@ import Header from "./components/Header";
 import Login from "./pages/Login";
 import Books from "./pages/BookList";
 import BookDetail from "./pages/BookDetail";
+import RentPage from "./pages/RentPage";
 
 function ProtectedLoginRoute({ user, children }) {
   const [alertShown, setAlertShown] = useState(false);
@@ -77,6 +78,7 @@ function App() {
         />
         <Route path="/books" element={<Books user={user} />} />
         <Route path="/book-detail" element={<BookDetail />} />
+        <Route path="/rent" element={<RentPage />} />
       </Routes>
     </Router>
   );
