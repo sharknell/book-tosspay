@@ -1,0 +1,19 @@
+# Node.js 모듈 폴더 (예: npm)
+node_modules/
+
+# 빌드 파일 (예: Webpack, Vite 등에서 생성된 파일)
+dist/
+build/
+
+# 환경 파일 (예: API 키나 민감한 정보를 포함할 수 있는 파일)
+.env
+
+# IDE 관련 파일 (예: VSCode, IntelliJ 등)
+.vscode/
+.idea/
+
+# 로그 파일
+*.log
+
+# OS 관련 파일 (예: macOS의 .DS_Store 등)
+.DS_Store
