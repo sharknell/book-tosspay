@@ -1,5 +1,7 @@
+// src/context/authContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { getRefreshToken } from "../utils/authUtils";
 
 const AuthContext = createContext();
 
@@ -46,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshAccessToken = async () => {
-    const refreshToken = sessionStorage.getItem("refreshToken");
+    const refreshToken = getRefreshToken();
     if (!refreshToken) {
       logout();
       return;

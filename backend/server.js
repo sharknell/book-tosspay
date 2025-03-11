@@ -6,6 +6,7 @@ const fetch = require("node-fetch");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // jwt 모듈 추가
 const bookRoutes = require("./src/routes/bookRoutes");
+const { authenticateToken } = require("./src/middleware/authMiddleware");
 
 const app = express();
 app.use(cors());
@@ -62,14 +63,14 @@ app.post("/api/login", async (req, res) => {
     const accessToken = jwt.sign(
       { userId: user.id },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: "30d" }
     );
 
     // 리프레시 토큰 생성
     const refreshToken = jwt.sign(
       { userId: user.id },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "30d" }
     );
 
     // 리프레시 토큰 DB에 저장
@@ -122,6 +123,24 @@ app.post("/api/refresh", async (req, res) => {
   } catch (error) {
     console.error("리프레시 토큰 오류:", error);
     res.status(403).json({ message: "리프레시 토큰이 유효하지 않습니다." });
+  }
+});
+app.get("/api/user", authenticateToken, async (req, res) => {
+  try {
+    // 🔍 DB에서 사용자 정보 조회
+    const [users] = await db.query(
+      "SELECT id, username, email FROM users WHERE id = ?",
+      [req.user.userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    res.json(users[0]); // ✅ 사용자 정보 반환
+  } catch (error) {
+    console.error("사용자 정보 가져오기 오류:", error);
+    res.status(500).json({ message: "서버 오류" });
   }
 });
 

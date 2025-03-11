@@ -20,7 +20,7 @@ const Register = () => {
   };
 
   return (
-    <div>
+    <div className="register">
       <h2>회원가입</h2>
       <form onSubmit={handleSubmit}>
         <input
