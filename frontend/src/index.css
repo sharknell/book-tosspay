@@ -13,10 +13,11 @@
 .login,
 .register,
 .rent-page-container,
+.profile-containor,
 .nav-links.show,
 .store {
   max-width: 400px;
   margin-left: auto;
   margin-right: auto;
-  background-color: #f2f2f2;
+  background-color: #fff;
 }

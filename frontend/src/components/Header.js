@@ -38,10 +38,7 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     setCurrentUser(null);
-  };
-
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+    alert("로그아웃 되었습니다.");
   };
 
   return (
@@ -50,9 +47,6 @@ const Header = () => {
         <Link to="/" className="header-title">
           <h1 className="header-title-style">Book Rental</h1>
         </Link>
-      </div>
-      <div className="menu-toggle" onClick={toggleMenu}>
-        &#9776;
       </div>
       <nav className={`nav-links ${menuOpen ? "show" : ""}`}>
         <ul>
@@ -64,11 +58,15 @@ const Header = () => {
           {currentUser ? (
             <>
               <li>
-                <span className="welcome">{currentUser.username} 님</span>
+                <span className="welcome">
+                  <Link to="/profile" className="link">
+                    {currentUser.username}
+                  </Link>
+                </span>
               </li>
               <li>
                 <button className="logout-btn" onClick={handleLogout}>
-                  로그아웃
+                  <li>로그아웃</li>
                 </button>
               </li>
             </>

@@ -1,4 +1,3 @@
-// src/context/authContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { getRefreshToken } from "../utils/authUtils";
@@ -9,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 초기 렌더링 시 accessToken을 sessionStorage에서 불러오기
   useEffect(() => {
     const storedToken = sessionStorage.getItem("accessToken");
     if (storedToken) {
@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // accessToken이 바뀔 때마다 sessionStorage에 저장
   useEffect(() => {
     if (accessToken) {
       sessionStorage.setItem("accessToken", accessToken);
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [accessToken]);
 
+  // 로그인 처리
   const login = async (email, password) => {
     try {
       const response = await axios.post("http://localhost:5001/api/login", {
@@ -41,12 +43,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // 로그아웃 처리
   const logout = () => {
     setAccessToken(null);
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken");
   };
 
+  // 토큰 갱신 처리
   const refreshAccessToken = async () => {
     const refreshToken = getRefreshToken();
     if (!refreshToken) {
@@ -68,7 +72,13 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ accessToken, login, logout, refreshAccessToken, loading }}
+      value={{
+        accessToken,
+        login,
+        logout,
+        refreshAccessToken,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>
