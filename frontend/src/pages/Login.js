@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
+import "./Login.css";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -20,11 +22,11 @@ const Login = () => {
   };
 
   return (
-    <div className="login">
+    <div className="login-container">
       <h2>로그인</h2>
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleLogin} className="login-form">
         <div>
-          <label>Email</label>
+          <label className="login-form-label">Email</label>
           <input
             type="email"
             value={email}
@@ -33,7 +35,7 @@ const Login = () => {
           />
         </div>
         <div>
-          <label>Password</label>
+          <label className="login-form-label">Password</label>
           <input
             type="password"
             value={password}
@@ -42,6 +44,12 @@ const Login = () => {
           />
         </div>
         <button type="submit">로그인</button>
+        <p>
+          아직 회원이 아니신가요?
+          <Link type="submit" className="signup-link">
+            회원가입
+          </Link>
+        </p>
       </form>
     </div>
   );

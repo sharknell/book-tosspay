@@ -1,4 +1,3 @@
-// src/components/Header.js
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -9,7 +8,6 @@ import "./Header.css";
 const Header = () => {
   const { accessToken, logout, refreshAccessToken } = useAuth();
   const [currentUser, setCurrentUser] = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -22,8 +20,7 @@ const Header = () => {
         } catch (error) {
           console.error("사용자 정보 가져오기 실패:", error);
           if (error.response && error.response.status === 403) {
-            // 토큰 만료 시, 토큰 갱신 시도
-            refreshAccessToken();
+            refreshAccessToken(); // 토큰 만료 시 갱신 시도
           }
           setCurrentUser(null);
         }
@@ -48,7 +45,8 @@ const Header = () => {
           <h1 className="header-title-style">Book Rental</h1>
         </Link>
       </div>
-      <nav className={`nav-links ${menuOpen ? "show" : ""}`}>
+
+      <nav className="nav-links">
         <ul>
           <li>
             <Link to="/books" className="link">
@@ -66,7 +64,7 @@ const Header = () => {
               </li>
               <li>
                 <button className="logout-btn" onClick={handleLogout}>
-                  <li>로그아웃</li>
+                  로그아웃
                 </button>
               </li>
             </>
