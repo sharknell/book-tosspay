@@ -7,7 +7,7 @@ const BookList = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("인기 도서");
-
+  console.log("BookList에서 전달된 user:", user);
   useEffect(() => {
     fetchBooks(query);
   }, [query]);

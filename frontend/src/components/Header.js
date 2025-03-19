@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/authContext";
-import { getRefreshToken } from "../utils/authUtils";
 import "./Header.css";
 
 const Header = () => {
