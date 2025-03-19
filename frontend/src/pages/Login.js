@@ -12,10 +12,10 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const success = await login(email, password);
+    const success = await login(email, password); // 로그인 함수 호출
     if (success) {
       alert("로그인 성공!");
-      navigate("/books");
+      navigate("/books"); // 로그인 성공 후 /books로 이동
     } else {
       alert("로그인 실패");
     }
@@ -46,7 +46,7 @@ const Login = () => {
         <button type="submit">로그인</button>
         <p>
           아직 회원이 아니신가요?
-          <Link type="submit" className="signup-link">
+          <Link to="/signup" className="signup-link">
             회원가입
           </Link>
         </p>

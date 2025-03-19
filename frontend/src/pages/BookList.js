@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { getBooks } from "../services/bookService";
 import BookItem from "./BookItem";
+import { useAuth } from "../context/authContext"; // useAuth import
 
-const BookList = ({ user }) => {
+const BookList = () => {
+  const { user } = useAuth(); // user 정보 가져오기
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("인기 도서");
-  console.log("BookList에서 전달된 user:", user);
+
   useEffect(() => {
     fetchBooks(query);
   }, [query]);
@@ -54,7 +56,7 @@ const BookList = ({ user }) => {
       <ul>
         {books.length > 0 ? (
           books.map((book, index) => (
-            <BookItem key={index} book={book} user={user} />
+            <BookItem key={index} book={book} user={user} /> // user 전달
           ))
         ) : (
           <li>결과가 없습니다.</li>

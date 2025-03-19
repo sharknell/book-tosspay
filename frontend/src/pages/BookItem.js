@@ -1,34 +1,43 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
-import { loadTossPayments } from "@tosspayments/payment-sdk"; // 🏦 토스 결제 SDK 추가
+import { loadTossPayments } from "@tosspayments/payment-sdk";
 import "./BookItem.css";
 
 const BookItem = ({ book }) => {
   const navigate = useNavigate();
-  const { accessToken } = useAuth();
+  const { accessToken, user, loading } = useAuth(); // 로딩 상태 추가
+  console.log("📌 BookItem에서 받은 user 정보:", user);
 
-  // 🏦 토스 결제 함수
+  // 로딩 중일 때 처리
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
+
+  // 결제 처리 함수
   const handlePayment = async () => {
-    if (!accessToken) {
-      alert("로그인이 필요합니다.");
+    if (!accessToken || !user) {
       navigate("/login");
       return;
     }
 
-    const tossPayments = await loadTossPayments(
-      "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"
-    ); // ⚠️ 클라이언트 키 입력
-
-    tossPayments.requestPayment("카드", {
-      amount: book.sale_price > 0 ? book.sale_price : book.price, // 🏷️ 할인가가 있으면 적용
+    const orderData = {
+      amount: book.sale_price > 0 ? book.sale_price : book.price,
       orderId: `order_${new Date().getTime()}`,
       orderName: book.title,
       successUrl: `${window.location.origin}/success`,
       failUrl: `${window.location.origin}/fail`,
-      customerEmail: "user@example.com",
-      customerName: "홍길동",
-    });
+      customerEmail: user?.email ?? "unknown@example.com",
+      customerName: user?.name ?? "미등록 사용자",
+    };
+
+    console.log("📦 결제 요청 정보:", orderData);
+
+    const tossPayments = await loadTossPayments(
+      "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"
+    );
+
+    tossPayments.requestPayment("카드", orderData);
   };
 
   return (
