@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
@@ -12,6 +12,12 @@ const BookItem = ({ book }) => {
   // 로딩 중일 때 처리
   if (loading) {
     return <div>로딩 중...</div>;
+  }
+
+  // user가 없으면 로그인 페이지로 이동
+  if (!user) {
+    navigate("/login");
+    return null; // 로그인 후 렌더링
   }
 
   // 결제 처리 함수
@@ -61,12 +67,9 @@ const BookItem = ({ book }) => {
           <div className="button-group">
             <button
               className="rent-button"
-              onClick={() => navigate("/rent", { state: { book } })}
+              onClick={() => navigate("/book-detail", { state: { book } })}
             >
               자세히 보기
-            </button>
-            <button className="pay-button" onClick={handlePayment}>
-              결제하기
             </button>
           </div>
         </div>

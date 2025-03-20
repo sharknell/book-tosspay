@@ -1,15 +1,84 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/authContext";
+import { loadTossPayments } from "@tosspayments/payment-sdk";
+import { FaArrowLeft, FaHeart, FaRegHeart } from "react-icons/fa"; // 아이콘 추가
 import "./BookDetail.css";
 
-const BookDetail = ({ user }) => {
+const BookDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const book = location.state?.book;
 
-  if (!book) {
-    return <div>책 정보를 불러올 수 없습니다.</div>;
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(null);
+  const [isRented, setIsRented] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("payment") === "success") {
+      setPaymentStatus("success");
+    } else if (query.get("payment") === "fail") {
+      setPaymentStatus("fail");
+    }
+
+    if (book) {
+      fetch(`/api/book/${book.id}/is-rented`)
+        .then((res) => res.json())
+        .then((data) => setIsRented(data.isRented))
+        .catch((err) => console.error("대여 상태 확인 오류:", err));
+    }
+
+    const savedBookmarks = JSON.parse(
+      localStorage.getItem("bookmarks") || "[]"
+    );
+    setIsBookmarked(savedBookmarks.includes(book?.id));
+  }, [book]);
+
+  if (loading) {
+    return <div className="loading">로딩 중...</div>;
   }
+
+  if (!book) {
+    return (
+      <div className="error-container">
+        <h2>📚 책 정보를 불러올 수 없습니다.</h2>
+        <button onClick={() => navigate("/")}>홈으로 가기</button>
+      </div>
+    );
+  }
+
+  const handlePayment = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const orderData = {
+      amount: book.sale_price > 0 ? book.sale_price : book.price,
+      orderId: `order_${new Date().getTime()}`,
+      orderName: book.title,
+      successUrl: `${window.location.origin}/book-detail?payment=success`,
+      failUrl: `${window.location.origin}/book-detail?payment=fail`,
+      customerEmail: user?.email ?? "unknown@example.com",
+      customerName: user?.name ?? "미등록 사용자",
+    };
+
+    try {
+      const tossPayments = await loadTossPayments(
+        "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"
+      );
+      await tossPayments.requestPayment("카드", orderData);
+    } catch (error) {
+      alert("결제 처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleRentBook = () => {
     if (user) {
@@ -19,69 +88,47 @@ const BookDetail = ({ user }) => {
     }
   };
 
-  const handlePayment = () => {
-    if (!user) {
-      navigate("/login");
-      return;
+  const handleBookmark = () => {
+    const savedBookmarks = JSON.parse(
+      localStorage.getItem("bookmarks") || "[]"
+    );
+    let updatedBookmarks;
+
+    if (isBookmarked) {
+      updatedBookmarks = savedBookmarks.filter((id) => id !== book.id);
+    } else {
+      updatedBookmarks = [...savedBookmarks, book.id];
     }
 
-    // 1. 백엔드로 결제 요청을 보내 결제 정보를 받아온다.
-    fetch("/api/create-payment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        amount: book.sale_price, // 결제 금액
-        productName: book.title, // 결제 상품명
-        userId: user.id, // 사용자 정보
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const { paymentUrl, paymentToken } = data; // 백엔드에서 받은 결제 URL과 토큰
-
-        // 2. Toss Payments SDK를 사용하여 결제 창을 연다.
-        if (window.TossPayments) {
-          const tossPayments = window.TossPayments("your_toss_payment_key"); // 실제 토스 키를 사용하세요.
-
-          tossPayments.requestPayment("카드", {
-            orderId: paymentToken,
-            amount: book.sale_price, // 결제 금액
-            orderName: book.title,
-            successUrl: "https://your-site.com/success", // 결제 성공 후 리디렉션 URL
-            failUrl: "https://your-site.com/fail", // 결제 실패 후 리디렉션 URL
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("결제 처리 오류:", error);
-        alert("결제 처리 중 오류가 발생했습니다.");
-      });
+    localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+    setIsBookmarked(!isBookmarked);
   };
 
   return (
     <div className="book-detail-container">
+      {/* 뒤로 가기 버튼 */}
       <button className="back-button" onClick={() => navigate(-1)}>
-        뒤로 가기
+        <FaArrowLeft />
       </button>
-      <h1>{book.title}</h1>
+
+      <div className="book-header">
+        <h1>{book.title}</h1>
+        <button className="bookmark-button" onClick={handleBookmark}>
+          {isBookmarked ? <FaHeart className="bookmarked" /> : <FaRegHeart />}
+        </button>
+      </div>
+
       <img src={book.thumbnail} alt={book.title} className="book-image" />
       <p>
         <strong>저자:</strong> {book.authors.join(", ")}
       </p>
-      {book.translators && book.translators.length > 0 && (
-        <p>
-          <strong>번역:</strong> {book.translators.join(", ")}
-        </p>
-      )}
       <p>
         <strong>출판사:</strong> {book.publisher}
       </p>
       <p>
         <strong>출판 날짜:</strong> {book.datetime.substring(0, 10)}
       </p>
-      <p></p>
+
       <div className="price-info">
         <p>
           <strong>정가:</strong>{" "}
@@ -94,27 +141,30 @@ const BookDetail = ({ user }) => {
             : "할인 정보 없음"}
         </p>
       </div>
-      <hr />
-      <p>
-        <strong>판매 상태:</strong> {book.status}
-      </p>
-      <hr />
-      <p>{book.contents}</p>
+
       <a
         href={book.url}
         target="_blank"
         rel="noopener noreferrer"
         className="book-link"
       >
-        다음 에서 확인 하기
+        다음에서 확인하기
       </a>
-      <button className="rent-button" onClick={handleRentBook}>
-        대여하기
+
+      <button
+        className="rent-button"
+        onClick={handleRentBook}
+        disabled={isRented}
+      >
+        {isRented ? "이미 대여됨" : "대여하기"}
       </button>
 
-      {/* 결제 버튼 */}
-      <button className="payment-button" onClick={handlePayment}>
-        결제하기
+      <button
+        className="payment-button"
+        onClick={handlePayment}
+        disabled={isProcessing}
+      >
+        {isProcessing ? "결제 중..." : "결제하기"}
       </button>
     </div>
   );
