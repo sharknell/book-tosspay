@@ -65,9 +65,9 @@ const BookDetail = () => {
       successUrl: `${window.location.origin}/book-detail?payment=success`,
       failUrl: `${window.location.origin}/book-detail?payment=fail`,
       customerEmail: user?.email ?? "unknown@example.com",
-      customerName: user?.name ?? "미등록 사용자",
+      customerName: user?.username ?? "미등록 사용자",
     };
-
+    console.log("결제 데이터:", orderData);
     try {
       const tossPayments = await loadTossPayments(
         "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"

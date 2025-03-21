@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { getBooks } from "../services/bookService";
 import BookItem from "./BookItem";
-import { useAuth } from "../context/authContext"; // useAuth import
+import { useAuth } from "../context/authContext";
+import "./BookList.css";
 
 const BookList = () => {
-  const { user } = useAuth(); // user 정보 가져오기
+  const { user } = useAuth();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("인기 도서");
+  const [page, setPage] = useState(1);
+  const booksPerPage = 5;
 
   useEffect(() => {
     fetchBooks(query);
@@ -37,6 +40,17 @@ const BookList = () => {
     fetchBooks(query);
   };
 
+  const handleNextPage = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    setPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
+
+  const startIndex = (page - 1) * booksPerPage;
+  const displayedBooks = books.slice(startIndex, startIndex + booksPerPage);
+
   return (
     <div className="container">
       <h1>도서 목록</h1>
@@ -54,14 +68,27 @@ const BookList = () => {
       {error && <div>{error}</div>}
 
       <ul>
-        {books.length > 0 ? (
-          books.map((book, index) => (
-            <BookItem key={index} book={book} user={user} /> // user 전달
+        {displayedBooks.length > 0 ? (
+          displayedBooks.map((book, index) => (
+            <BookItem key={index} book={book} user={user} />
           ))
         ) : (
           <li>결과가 없습니다.</li>
         )}
       </ul>
+
+      <div className="pagination">
+        <button onClick={handlePrevPage} disabled={page === 1}>
+          이전
+        </button>
+        <span>{page}</span>
+        <button
+          onClick={handleNextPage}
+          disabled={startIndex + booksPerPage >= books.length}
+        >
+          다음
+        </button>
+      </div>
     </div>
   );
 };

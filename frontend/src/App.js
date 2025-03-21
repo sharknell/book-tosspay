@@ -8,7 +8,7 @@ import {
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
-import Books from "./pages/BookList";
+import BooksList from "./pages/BookList";
 import BookDetail from "./pages/BookDetail";
 import Profile from "./pages/Profile";
 import { useAuth } from "./context/authContext";
@@ -49,7 +49,7 @@ function App() {
             </ProtectedLoginRoute>
           }
         />
-        <Route path="/books" element={<Books />} />
+        <Route path="/books" element={<BooksList />} />
 
         {/* /book-detail, /rent, /profile 페이지는 로그인 필수 */}
         <Route
