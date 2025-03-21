@@ -1,6 +1,7 @@
 // src/pages/Register.js
 import React, { useState } from "react";
 import { registerUser } from "../services/accountService"; // API 요청 함수
+import "./Login.css";
 
 const Register = () => {
   const [email, setEmail] = useState("");

@@ -54,14 +54,17 @@ const BookList = () => {
   return (
     <div className="container">
       <h1>도서 목록</h1>
-      <form onSubmit={handleSearchSubmit}>
+      <form className="search-form" onSubmit={handleSearchSubmit}>
         <input
           type="text"
           value={query}
+          className="search-input"
           onChange={handleSearchChange}
           placeholder="책을 검색하세요..."
         />
-        <button type="submit">검색</button>
+        <button type="submit" className="search-button">
+          검색
+        </button>
       </form>
 
       {loading && <div>로딩 중...</div>}

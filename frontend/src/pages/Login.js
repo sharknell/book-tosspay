@@ -27,6 +27,7 @@ const Login = () => {
       <form onSubmit={handleLogin} className="login-form">
         <div>
           <label className="login-form-label">Email</label>
+          <br />
           <input
             type="email"
             value={email}
@@ -36,6 +37,7 @@ const Login = () => {
         </div>
         <div>
           <label className="login-form-label">Password</label>
+          <br />
           <input
             type="password"
             value={password}
@@ -46,7 +48,7 @@ const Login = () => {
         <button type="submit">로그인</button>
         <p>
           아직 회원이 아니신가요?
-          <Link to="/signup" className="signup-link">
+          <Link to="/register" className="signup-link">
             회원가입
           </Link>
         </p>

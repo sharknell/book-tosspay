@@ -1,9 +1,8 @@
-// backend/db.js
 require("dotenv").config();
 const mysql = require("mysql2");
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST, // .env에서 가져옴
+  host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
@@ -22,4 +21,5 @@ pool.getConnection((err, connection) => {
   }
 });
 
+// 🚀 여기에서 pool을 그대로 내보냄
 module.exports = pool.promise();

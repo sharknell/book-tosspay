@@ -48,7 +48,7 @@ const Header = () => {
       <nav className="nav-links">
         <ul>
           <li>
-            <Link to="/books" className="link">
+            <Link to="/books-list" className="link">
               도서 목록
             </Link>
           </li>

@@ -1,10 +1,10 @@
 const axios = require("axios");
+const db = require("../config/db"); // MySQL 연결
 require("dotenv").config();
 
-// 카카오 API 키 가져오기
 const KAKAO_API_KEY = process.env.KAKAO_API_KEY;
 
-// 카카오 도서 검색 API 호출
+// 📚 카카오 도서 검색 API 호출 및 데이터 저장
 const searchBooks = async (query) => {
   try {
     const response = await axios.get("https://dapi.kakao.com/v3/search/book", {
@@ -13,13 +13,64 @@ const searchBooks = async (query) => {
       },
       params: {
         query: query,
-        size: 10, // 검색 결과 최대 10개
+        size: 1000, // 검색 결과 최대 10개
       },
     });
-    return response.data.documents; // 검색된 책들
+
+    const books = response.data.documents || [];
+
+    for (const book of books) {
+      await saveBookToDB(book);
+    }
+
+    return books;
   } catch (error) {
-    console.error("카카오 API 오류:", error);
+    console.error("❌ 카카오 API 오류:", error.message);
     return [];
+  }
+};
+
+// 📂 데이터베이스에 저장하는 함수
+const saveBookToDB = async (book) => {
+  try {
+    const {
+      title,
+      authors,
+      publisher,
+      datetime,
+      isbn,
+      thumbnail: cover_image,
+    } = book;
+
+    // 🔥 중복 체크 (ISBN 기준, 없으면 제목 + 출판사 기준)
+    const [existingBook] = await db.query(
+      "SELECT id FROM books WHERE isbn = ? OR (title = ? AND publisher = ?)",
+      [isbn, title, publisher]
+    );
+
+    if (existingBook.length === 0) {
+      console.log(`📚 책 저장 중: ${title}`);
+
+      await db.query(
+        `INSERT INTO books (kakao_id, title, author, publisher, published_date, isbn, cover_image) 
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          isbn || null,
+          title,
+          authors.join(", "), // 🔥 배열을 문자열로 변환
+          publisher,
+          datetime ? datetime.split("T")[0] : null, // 🔥 YYYY-MM-DD 변환
+          isbn,
+          cover_image,
+        ]
+      );
+
+      console.log(`✅ 저장 완료: ${title}`);
+    } else {
+      console.log(`⚠️ 이미 존재하는 책: ${title}`);
+    }
+  } catch (error) {
+    console.error("❌ DB 저장 오류:", error.sqlMessage || error.message);
   }
 };
 

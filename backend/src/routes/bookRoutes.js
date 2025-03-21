@@ -1,17 +1,18 @@
-// /src/routes/bookRoutes.js
 const express = require("express");
-const router = express.Router();
-const bookService = require("../services/bookService");
+const { searchBooks } = require("../services/bookService");
 
-// 책 검색 API
-router.get("/", async (req, res) => {
-  const query = req.query.query || ""; // query 파라미터 가져오기
+const router = express.Router();
+
+router.get("/search", async (req, res) => {
+  const { query } = req.query;
+  if (!query) return res.status(400).json({ message: "검색어를 입력하세요." });
+
   try {
-    const data = await bookService.searchBooks(query);
-    res.json(data); // 클라이언트에 데이터 응답
+    const books = await searchBooks(query);
+    res.json({ books });
   } catch (error) {
-    console.error("Error in book search:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("도서 검색 오류:", error);
+    res.status(500).json({ message: "도서 검색 실패" });
   }
 });
 

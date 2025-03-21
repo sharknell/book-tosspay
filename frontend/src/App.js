@@ -8,6 +8,7 @@ import {
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import BooksList from "./pages/BookList";
 import BookDetail from "./pages/BookDetail";
 import Profile from "./pages/Profile";
@@ -49,7 +50,15 @@ function App() {
             </ProtectedLoginRoute>
           }
         />
-        <Route path="/books" element={<BooksList />} />
+        <Route
+          path="/register"
+          element={
+            <ProtectedLoginRoute>
+              <Register />
+            </ProtectedLoginRoute>
+          }
+        />
+        <Route path="/books-list" element={<BooksList />} />
 
         {/* /book-detail, /rent, /profile 페이지는 로그인 필수 */}
         <Route
