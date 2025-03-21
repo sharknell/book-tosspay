@@ -42,6 +42,7 @@ const Footer = () => {
         </nav>
         <div className="footer-info">
           <p>&copy; 2025 Book Rental, All Rights Reserved.</p>
+          <p>Made In Sharknell</p>
         </div>
       </div>
     </footer>
