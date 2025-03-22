@@ -21,7 +21,8 @@ const BookList = () => {
     setLoading(true);
     getBooks(searchQuery)
       .then((data) => {
-        setBooks(data.documents || []);
+        console.log("📌 저장할 books:", data); // 디버깅 로그 추가
+        setBooks(data); // ✅ 배열 그대로 저장
         setLoading(false);
       })
       .catch((error) => {
