@@ -160,6 +160,42 @@ app.get("/", async (req, res) => {
 
 initializeBooks(); // 서버 실행 시 도서 데이터 초기화
 
+// 도서 검색 API
+app.get("/api/books/search", (req, res) => {
+  const {
+    query = "인기 도서",
+    category = "all",
+    sort = "popularity",
+  } = req.query;
+
+  let sql = `SELECT * FROM books WHERE title LIKE ?`;
+
+  // 카테고리가 all이 아니면 카테고리로 필터링
+  if (category !== "all") {
+    sql += ` AND category_id = ?`;
+  }
+
+  // 정렬 기준에 따른 정렬 쿼리 추가
+  if (sort === "popularity") {
+    sql += ` ORDER BY stock DESC`; // 재고가 많은 순으로 정렬 (예시)
+  } else if (sort === "rating") {
+    sql += ` ORDER BY rating DESC`; // 별점 순으로 정렬 (예시)
+  }
+
+  db.query(
+    sql,
+    [`%${query}%`, category !== "all" ? category : null].filter(Boolean),
+    (err, results) => {
+      if (err) {
+        console.error("DB Query Error:", err);
+        return res.status(500).json({ error: "서버 오류" });
+      }
+
+      res.json({ books: results });
+    }
+  );
+});
+
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 서버가 포트 ${PORT}에서 실행 중!`);

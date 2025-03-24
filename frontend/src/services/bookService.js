@@ -3,17 +3,14 @@ export const getBooks = (
   category = "all",
   sortBy = "popularity"
 ) => {
-  // 검색 URL 구성
   let url = `http://localhost:5001/api/books/search?query=${encodeURIComponent(
     query
   )}`;
 
-  // 카테고리가 "all"이 아니면 카테고리 파라미터 추가
   if (category !== "all") {
     url += `&category=${encodeURIComponent(category)}`;
   }
 
-  // 정렬 기준이 있으면 sort 파라미터 추가
   if (sortBy) {
     url += `&sort=${encodeURIComponent(sortBy)}`;
   }
@@ -25,11 +22,11 @@ export const getBooks = (
       if (!response.ok) {
         throw new Error("서버 응답 오류");
       }
-      return response.json(); // 응답 데이터를 JSON으로 파싱
+      return response.json();
     })
     .then((data) => {
-      // 받아온 데이터에서 books 배열을 반환
-      return data.books || []; // books 데이터가 없으면 빈 배열 반환
+      console.log("📌 서버에서 반환된 데이터:", data); // 데이터를 콘솔에 확인
+      return data.results || []; // 실제 API에서 반환하는 결과 배열로 설정
     })
     .catch((error) => {
       console.error("📌 도서 데이터 가져오기 오류:", error);
