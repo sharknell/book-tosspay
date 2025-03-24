@@ -1,43 +1,90 @@
-// backend/services/bookService.js
-
 const axios = require("axios");
-const db = require("../config/db"); // MySQL 연결
+const db = require("../config/db");
 require("dotenv").config();
 
 const KAKAO_API_KEY = process.env.KAKAO_API_KEY;
 
-// 카카오 API를 통해 도서 검색
-const searchBooks = async (query) => {
+const fetchAllBooks = async () => {
+  let allBooks = [];
+  let page = 1;
+  const size = 50; // 카카오 API는 최대 50개씩 요청 가능
+  const isbnSet = new Set(); // ISBN 중복 방지용
+
   try {
-    // 카카오 API로 도서 검색
-    const response = await axios.get("https://dapi.kakao.com/v3/search/book", {
-      headers: {
-        Authorization: `KakaoAK ${KAKAO_API_KEY}`,
-      },
-      params: {
-        query: query,
-        size: 10, // 최대 10개 검색
-      },
-    });
+    while (true) {
+      const response = await axios.get(
+        "https://dapi.kakao.com/v3/search/book",
+        {
+          headers: { Authorization: `KakaoAK ${KAKAO_API_KEY}` },
+          params: { query: "책", size, page },
+        }
+      );
 
-    const books = response.data.documents || [];
+      const books = response.data.documents || [];
+      if (books.length === 0) break; // 더 이상 데이터가 없으면 종료
 
-    // 검색된 도서들을 DB에 저장
-    for (const book of books) {
-      await saveBookToDB(book);
+      // 중복 ISBN 필터링
+      const uniqueBooks = books.filter((book) => {
+        if (!isbnSet.has(book.isbn)) {
+          isbnSet.add(book.isbn);
+          return true;
+        }
+        return false;
+      });
+
+      if (uniqueBooks.length === 0) break; // 모두 중복이면 종료
+
+      allBooks = [...allBooks, ...uniqueBooks];
+      console.log(`📖 페이지 ${page}에서 ${uniqueBooks.length}권 추가됨.`);
+      page++;
     }
-
-    return books;
   } catch (error) {
     console.error("❌ 카카오 API 오류:", error.message);
+  }
+
+  return allBooks;
+};
+
+// 📌 데이터베이스에 모든 도서 저장 (중복 방지)
+const initializeBooks = async () => {
+  try {
+    console.log("⏳ 카카오 API에서 도서 목록을 불러오는 중...");
+
+    const books = await fetchAllBooks();
+    console.log(`📚 총 ${books.length}권의 도서를 가져왔습니다.`);
+
+    let insertedCount = 0;
+
+    for (const book of books) {
+      const saved = await saveBookToDB(book);
+      if (saved) insertedCount++;
+    }
+
+    console.log(
+      `✅ 총 ${insertedCount}권의 도서가 데이터베이스에 저장되었습니다.`
+    );
+  } catch (error) {
+    console.error("❌ 도서 저장 오류:", error.message);
+  }
+};
+
+// 📌 검색 기능 (카카오 API에서 검색)
+const searchBooks = async (query) => {
+  try {
+    const response = await axios.get("https://dapi.kakao.com/v3/search/book", {
+      headers: { Authorization: `KakaoAK ${KAKAO_API_KEY}` },
+      params: { query, size: 10 },
+    });
+
+    return response.data.documents || [];
+  } catch (error) {
+    console.error("❌ 도서 검색 오류:", error.message);
     return [];
   }
 };
 
-// 데이터베이스에 도서 저장 함수
 const saveBookToDB = async (book) => {
   try {
-    // 카카오 API에서 가져오는 데이터에서 필요한 값 추출
     const {
       title,
       authors,
@@ -47,32 +94,36 @@ const saveBookToDB = async (book) => {
       thumbnail: cover_image,
     } = book;
 
-    // ISBN이 있으면 ISBN 기준, 없으면 제목 + 출판사 기준으로 중복 체크
+    console.log(`📝 저장 시도: ${title} (${isbn})`); // 저장 시도 로그
+
+    // 중복 체크
     const [existingBook] = await db.query(
       "SELECT id FROM books WHERE isbn = ? OR (title = ? AND publisher = ?)",
       [isbn, title, publisher]
     );
 
-    // 중복된 책이 없으면 데이터베이스에 저장
     if (existingBook.length === 0) {
-      await db.query(
+      const result = await db.query(
         "INSERT INTO books (title, author, publisher, published_date, isbn, cover_image) VALUES (?, ?, ?, ?, ?, ?)",
         [
           title,
-          authors.join(", "), // authors는 배열이므로 문자열로 변환
+          authors.join(", "),
           publisher,
           published_date,
           isbn,
           cover_image,
         ]
       );
-      console.log(`📚 책 저장 완료: ${title}`);
+      console.log(`✅ 저장 완료: ${title} (ID: ${result.insertId})`);
+      return true;
     } else {
       console.log(`⚠️ 이미 존재하는 책: ${title}`);
+      return false;
     }
   } catch (error) {
     console.error("❌ DB 저장 오류:", error.message);
+    return false;
   }
 };
 
-module.exports = { searchBooks }; // ✅ searchBooks 내보내기
+module.exports = { initializeBooks, searchBooks };

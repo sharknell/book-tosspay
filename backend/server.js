@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // jwt 모듈 추가
 const bookRoutes = require("./src/routes/bookRoutes");
 const { authenticateToken } = require("./src/middleware/authMiddleware");
+const { initializeBooks } = require("./src/services/bookService");
 
 const app = express();
 app.use(cors());
@@ -156,6 +157,8 @@ app.get("/", async (req, res) => {
     res.status(500).send("❌ 데이터베이스 연결 실패!");
   }
 });
+
+initializeBooks(); // 서버 실행 시 도서 데이터 초기화
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
