@@ -6,18 +6,17 @@ import "./BookItem.css";
 
 const BookItem = ({ book }) => {
   const navigate = useNavigate();
-  const { accessToken, user, loading } = useAuth(); // 로딩 상태 추가
-  console.log("📌 BookItem에서 받은 user 정보:", user);
+  const { accessToken, user, loading } = useAuth();
 
   // 로딩 중일 때 처리
   if (loading) {
     return <div>로딩 중...</div>;
   }
 
-  // user가 없으면 로그인 페이지로 이동
+  // 로그인되지 않았으면 로그인 페이지로 이동
   if (!user) {
     navigate("/login");
-    return null; // 로그인 후 렌더링
+    return null;
   }
 
   // 결제 처리 함수
@@ -27,6 +26,7 @@ const BookItem = ({ book }) => {
       return;
     }
 
+    // 결제 데이터 구성
     const orderData = {
       amount: book.sale_price > 0 ? book.sale_price : book.price,
       orderId: `order_${new Date().getTime()}`,
@@ -39,11 +39,15 @@ const BookItem = ({ book }) => {
 
     console.log("📦 결제 요청 정보:", orderData);
 
-    const tossPayments = await loadTossPayments(
-      "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"
-    );
-
-    tossPayments.requestPayment("카드", orderData);
+    try {
+      const tossPayments = await loadTossPayments(
+        "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"
+      );
+      await tossPayments.requestPayment("카드", orderData);
+    } catch (error) {
+      console.error("결제 처리 중 오류가 발생했습니다:", error);
+      alert("결제 처리 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -51,18 +55,26 @@ const BookItem = ({ book }) => {
       <li className="book-item">
         <div className="book-item-thumbnail">
           <img
-            src={book.thumbnail}
+            src={book.thumbnail || "http://localhost:3000/logo192.png"} // 기본 이미지 추가
             alt={book.title}
             className="book-thumbnail"
           />
         </div>
         <div className="book-item-details">
           <h3 className="book-title">{book.title}</h3>
-          <h5 className="book-author">{book.authors}</h5>
+          <h5 className="book-author">{book.authors.join(", ")}</h5>{" "}
+          {/* 저자 배열 처리 */}
           <h5 className="book-publisher">{book.publisher}</h5>
-          <h5 className="book-published-date">{book.datetime}</h5>
-          <h5 className="book-price">{book.price}원</h5>
-          <h5 className="book-sale-price">{book.sale_price}원</h5>
+          <h5 className="book-published-date">
+            {book.datetime?.substring(0, 10)}
+          </h5>{" "}
+          {/* 날짜 형식 수정 */}
+          <h5 className="book-price">{book.price.toLocaleString()}원</h5>
+          <h5 className="book-sale-price">
+            {book.sale_price > 0
+              ? book.sale_price.toLocaleString() + "원"
+              : "할인 정보 없음"}
+          </h5>
           <h5 className="book-status">{book.status}</h5>
           <div className="button-group">
             <button
@@ -70,6 +82,13 @@ const BookItem = ({ book }) => {
               onClick={() => navigate("/book-detail", { state: { book } })}
             >
               자세히 보기
+            </button>
+            <button
+              className="payment-button"
+              onClick={handlePayment}
+              disabled={!book.sale_price && book.price <= 0} // 결제 가능한 가격 조건 추가
+            >
+              결제하기
             </button>
           </div>
         </div>

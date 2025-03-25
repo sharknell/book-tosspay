@@ -25,20 +25,12 @@ const BookList = () => {
     searchSortBy,
     currentPage
   ) => {
-    console.log("📌 API 호출 준비 중:", {
-      searchQuery,
-      searchCategory,
-      searchSortBy,
-      currentPage,
-    });
-
     setLoading(true);
     getBooks(searchQuery, searchCategory, searchSortBy)
       .then((data) => {
-        console.log("📌 fetchBooks에서 받은 데이터:", data); // 데이터 확인
-
-        if (data && data.length > 0) {
-          setBooks(data); // 데이터가 정상적으로 오면 상태 갱신
+        console.log("Fetched data:", data); // 데이터 확인
+        if (Array.isArray(data) && data.length > 0) {
+          setBooks(data); // 정상적인 데이터일 때
         } else {
           setBooks([]); // 빈 배열로 처리
         }
@@ -65,8 +57,8 @@ const BookList = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    setPage(1); // 검색할 때 페이지를 1로 초기화
-    fetchBooks(query, category, sortBy, 1); // 첫 번째 페이지부터 데이터 요청
+    setPage(1);
+    fetchBooks(query, category, sortBy, 1);
   };
 
   const handleNextPage = () => {
@@ -79,6 +71,9 @@ const BookList = () => {
 
   const startIndex = (page - 1) * booksPerPage;
   const displayedBooks = books.slice(startIndex, startIndex + booksPerPage);
+
+  // 디버깅: displayedBooks 로그
+  console.log("Displayed Books:", displayedBooks);
 
   return (
     <div className="container">

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
-import { FaArrowLeft, FaHeart, FaRegHeart } from "react-icons/fa"; // 아이콘 추가
+import { FaArrowLeft, FaHeart, FaRegHeart } from "react-icons/fa";
 import "./BookDetail.css";
 
 const BookDetail = () => {
@@ -12,29 +12,30 @@ const BookDetail = () => {
   const book = location.state?.book;
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState(null);
   const [isRented, setIsRented] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    if (query.get("payment") === "success") {
-      setPaymentStatus("success");
-    } else if (query.get("payment") === "fail") {
-      setPaymentStatus("fail");
+    const paymentStatus = query.get("payment");
+    if (paymentStatus === "success" || paymentStatus === "fail") {
+      // 결제 상태 설정
+      alert(paymentStatus === "success" ? "결제 성공" : "결제 실패");
     }
 
     if (book) {
+      // 대여 상태 확인
       fetch(`/api/book/${book.id}/is-rented`)
         .then((res) => res.json())
         .then((data) => setIsRented(data.isRented))
         .catch((err) => console.error("대여 상태 확인 오류:", err));
-    }
 
-    const savedBookmarks = JSON.parse(
-      localStorage.getItem("bookmarks") || "[]"
-    );
-    setIsBookmarked(savedBookmarks.includes(book?.id));
+      // 북마크 상태 확인
+      const savedBookmarks = JSON.parse(
+        localStorage.getItem("bookmarks") || "[]"
+      );
+      setIsBookmarked(savedBookmarks.includes(book?.id));
+    }
   }, [book]);
 
   if (loading) {
@@ -67,7 +68,7 @@ const BookDetail = () => {
       customerEmail: user?.email ?? "unknown@example.com",
       customerName: user?.username ?? "미등록 사용자",
     };
-    console.log("결제 데이터:", orderData);
+
     try {
       const tossPayments = await loadTossPayments(
         "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"
@@ -92,13 +93,9 @@ const BookDetail = () => {
     const savedBookmarks = JSON.parse(
       localStorage.getItem("bookmarks") || "[]"
     );
-    let updatedBookmarks;
-
-    if (isBookmarked) {
-      updatedBookmarks = savedBookmarks.filter((id) => id !== book.id);
-    } else {
-      updatedBookmarks = [...savedBookmarks, book.id];
-    }
+    const updatedBookmarks = isBookmarked
+      ? savedBookmarks.filter((id) => id !== book.id)
+      : [...savedBookmarks, book.id];
 
     localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
     setIsBookmarked(!isBookmarked);
@@ -106,16 +103,17 @@ const BookDetail = () => {
 
   return (
     <div className="book-detail-container">
-      {/* 뒤로 가기 버튼 */}
       <button className="back-button" onClick={() => navigate(-1)}>
         <FaArrowLeft />
       </button>
 
       <div className="book-header">
         <h1>{book.title}</h1>
+        <br />
         <button className="bookmark-button" onClick={handleBookmark}>
           {isBookmarked ? <FaHeart className="bookmarked" /> : <FaRegHeart />}
         </button>
+        <br />
       </div>
 
       <img src={book.thumbnail} alt={book.title} className="book-image" />

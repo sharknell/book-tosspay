@@ -15,7 +15,7 @@ const Login = () => {
     const success = await login(email, password); // 로그인 함수 호출
     if (success) {
       alert("로그인 성공!");
-      navigate("/books"); // 로그인 성공 후 /books로 이동
+      navigate("/books-list"); // 로그인 성공 후 /books로 이동
     } else {
       alert("로그인 실패");
     }

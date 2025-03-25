@@ -44,7 +44,6 @@ const Header = () => {
           <h1 className="header-title-style">Book Rental</h1>
         </Link>
       </div>
-
       <nav className="nav-links">
         <ul>
           <li>
@@ -52,6 +51,7 @@ const Header = () => {
               도서 목록
             </Link>
           </li>
+
           {currentUser ? (
             <>
               <li>

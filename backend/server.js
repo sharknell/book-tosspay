@@ -181,19 +181,6 @@ app.get("/api/books/search", (req, res) => {
   } else if (sort === "rating") {
     sql += ` ORDER BY rating DESC`; // 별점 순으로 정렬 (예시)
   }
-
-  db.query(
-    sql,
-    [`%${query}%`, category !== "all" ? category : null].filter(Boolean),
-    (err, results) => {
-      if (err) {
-        console.error("DB Query Error:", err);
-        return res.status(500).json({ error: "서버 오류" });
-      }
-
-      res.json({ books: results });
-    }
-  );
 });
 
 const PORT = process.env.PORT || 5001;
