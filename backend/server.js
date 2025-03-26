@@ -6,6 +6,7 @@ const fetch = require("node-fetch");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // jwt 모듈 추가
 const bookRoutes = require("./src/routes/bookRoutes");
+const bookmarksRoutes = require("./src/routes/bookmarksRoutes");
 const { authenticateToken } = require("./src/middleware/authMiddleware");
 const { initializeBooks } = require("./src/services/bookService");
 
@@ -13,6 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/books", bookRoutes);
+app.use("/api/bookmarks", bookmarksRoutes);
 // 회원가입 API
 app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;

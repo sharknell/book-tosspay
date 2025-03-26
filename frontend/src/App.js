@@ -14,7 +14,7 @@ import BookDetail from "./pages/BookDetail";
 import Profile from "./pages/Profile";
 import { useAuth } from "./context/authContext";
 
-// ProtectedRoute는 접근 제어를 담당하는 컴포넌트로 로그인 상태에 따라 페이지 접근을 제어합니다.
+// 보호된 경로 처리
 function ProtectedRoute({ children }) {
   const { accessToken, loading } = useAuth();
 
@@ -25,7 +25,7 @@ function ProtectedRoute({ children }) {
   return accessToken ? children : <Navigate to="/login" replace />;
 }
 
-// ProtectedLoginRoute는 로그인 상태에서 로그인 페이지 접근을 방지하는 컴포넌트입니다.
+// 로그인 상태에서는 로그인 및 회원가입 페이지 접근 차단
 function ProtectedLoginRoute({ children }) {
   const { accessToken, loading } = useAuth();
 
@@ -36,7 +36,7 @@ function ProtectedLoginRoute({ children }) {
   return accessToken ? <Navigate to="/books" replace /> : children;
 }
 
-// App 컴포넌트 내에서 각 라우트에 보호 기능을 추가
+// 메인 라우트 설정
 function App() {
   return (
     <Router>
@@ -58,11 +58,11 @@ function App() {
             </ProtectedLoginRoute>
           }
         />
-        <Route path="/books-list" element={<BooksList />} />
+        <Route path="/books" element={<BooksList />} />
 
-        {/* /book-detail, /rent, /profile 페이지는 로그인 필수 */}
+        {/* /book-detail/:id 경로 수정 */}
         <Route
-          path="/book-detail"
+          path="/book-detail/:id"
           element={
             <ProtectedRoute>
               <BookDetail />

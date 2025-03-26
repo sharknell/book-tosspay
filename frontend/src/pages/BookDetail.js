@@ -16,25 +16,33 @@ const BookDetail = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
+    console.log("📌 useEffect 실행 - 책 정보:", book);
+
     const query = new URLSearchParams(window.location.search);
     const paymentStatus = query.get("payment");
+
     if (paymentStatus === "success" || paymentStatus === "fail") {
-      // 결제 상태 설정
+      console.log(`💰 결제 상태: ${paymentStatus}`);
       alert(paymentStatus === "success" ? "결제 성공" : "결제 실패");
     }
 
     if (book) {
-      // 대여 상태 확인
+      console.log("🔍 대여 상태 확인 요청...");
       fetch(`/api/book/${book.id}/is-rented`)
         .then((res) => res.json())
-        .then((data) => setIsRented(data.isRented))
-        .catch((err) => console.error("대여 상태 확인 오류:", err));
+        .then((data) => {
+          console.log("📖 대여 상태 결과:", data);
+          setIsRented(data.isRented);
+        })
+        .catch((err) => console.error("❌ 대여 상태 확인 오류:", err));
 
       // 북마크 상태 확인
       const savedBookmarks = JSON.parse(
         localStorage.getItem("bookmarks") || "[]"
       );
-      setIsBookmarked(savedBookmarks.includes(book?.id));
+      const isBookmarkedState = savedBookmarks.includes(book?.id);
+      console.log(`📚 북마크 상태: ${isBookmarkedState}`);
+      setIsBookmarked(isBookmarkedState);
     }
   }, [book]);
 
@@ -53,10 +61,12 @@ const BookDetail = () => {
 
   const handlePayment = async () => {
     if (!user) {
+      console.log("🚨 비로그인 상태 - 로그인 페이지로 이동");
       navigate("/login");
       return;
     }
 
+    console.log("💳 결제 진행 중...");
     setIsProcessing(true);
 
     const orderData = {
@@ -69,12 +79,15 @@ const BookDetail = () => {
       customerName: user?.username ?? "미등록 사용자",
     };
 
+    console.log("📝 주문 데이터:", orderData);
+
     try {
       const tossPayments = await loadTossPayments(
         "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"
       );
       await tossPayments.requestPayment("카드", orderData);
     } catch (error) {
+      console.error("❌ 결제 오류:", error);
       alert("결제 처리 중 오류가 발생했습니다.");
     } finally {
       setIsProcessing(false);
@@ -83,21 +96,36 @@ const BookDetail = () => {
 
   const handleRentBook = () => {
     if (user) {
+      console.log("📖 대여 페이지로 이동:", book);
       navigate("/rent", { state: { book } });
     } else {
+      console.log("🚨 비로그인 상태 - 로그인 페이지로 이동");
       navigate("/login");
     }
   };
 
   const handleBookmark = () => {
+    if (!book || !book.id) {
+      console.error("❌ 북마크 추가 실패: book 또는 book.id가 없음", book);
+      return;
+    }
+
+    console.log("📚 북마크 버튼 클릭됨 - Book ID:", book.id);
+
     const savedBookmarks = JSON.parse(
       localStorage.getItem("bookmarks") || "[]"
     );
+
     const updatedBookmarks = isBookmarked
       ? savedBookmarks.filter((id) => id !== book.id)
       : [...savedBookmarks, book.id];
 
     localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+    console.log(
+      `🔖 북마크 ${isBookmarked ? "삭제" : "추가"}됨:`,
+      updatedBookmarks
+    );
+
     setIsBookmarked(!isBookmarked);
   };
 
