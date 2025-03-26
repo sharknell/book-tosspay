@@ -58,17 +58,12 @@ function App() {
             </ProtectedLoginRoute>
           }
         />
-        <Route path="/books" element={<BooksList />} />
-
-        {/* /book-detail/:id 경로 수정 */}
+        <Route path="/books-list" element={<BooksList />} />
         <Route
-          path="/book-detail/:id"
-          element={
-            <ProtectedRoute>
-              <BookDetail />
-            </ProtectedRoute>
-          }
+          path="/books-list/detail/${book.isbn}"
+          element={<BookDetail />}
         />
+
         <Route
           path="/profile"
           element={

@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
-import { loadTossPayments } from "@tosspayments/payment-sdk";
 import "./BookItem.css";
 
 const BookItem = ({ book }) => {
@@ -20,36 +19,6 @@ const BookItem = ({ book }) => {
   }
 
   // 결제 처리 함수
-  const handlePayment = async () => {
-    if (!accessToken || !user) {
-      navigate("/login");
-      return;
-    }
-
-    // 결제 데이터 구성
-    const orderData = {
-      amount: book.sale_price > 0 ? book.sale_price : book.price,
-      orderId: `order_${new Date().getTime()}`,
-      orderName: book.title,
-      successUrl: `${window.location.origin}/success`,
-      failUrl: `${window.location.origin}/fail`,
-      customerEmail: user?.email ?? "unknown@example.com",
-      customerName: user?.name ?? "미등록 사용자",
-    };
-
-    console.log("📦 결제 요청 정보:", orderData);
-
-    try {
-      const tossPayments = await loadTossPayments(
-        "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"
-      );
-      await tossPayments.requestPayment("카드", orderData);
-    } catch (error) {
-      console.error("결제 처리 중 오류가 발생했습니다:", error);
-      alert("결제 처리 중 오류가 발생했습니다.");
-    }
-  };
-
   return (
     <div className="book-item-container">
       <li className="book-item">
@@ -82,13 +51,6 @@ const BookItem = ({ book }) => {
               onClick={() => navigate("/book-detail", { state: { book } })}
             >
               자세히 보기
-            </button>
-            <button
-              className="payment-button"
-              onClick={handlePayment}
-              disabled={!book.sale_price && book.price <= 0} // 결제 가능한 가격 조건 추가
-            >
-              결제하기
             </button>
           </div>
         </div>

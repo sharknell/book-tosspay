@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getBooks } from "../services/bookService";
 import BookItem from "./BookItem";
 import { useAuth } from "../context/authContext";
+import { Link } from "react-router-dom"; // Import Link
 import "./BookList.css";
 
 const BookList = () => {
@@ -26,7 +27,13 @@ const BookList = () => {
     currentPage
   ) => {
     setLoading(true);
-    getBooks(searchQuery, searchCategory, searchSortBy)
+    getBooks(
+      searchQuery,
+      searchCategory,
+      searchSortBy,
+      currentPage,
+      booksPerPage
+    )
       .then((data) => {
         console.log("Fetched data:", data); // 데이터 확인
         if (Array.isArray(data) && data.length > 0) {
@@ -71,9 +78,6 @@ const BookList = () => {
 
   const startIndex = (page - 1) * booksPerPage;
   const displayedBooks = books.slice(startIndex, startIndex + booksPerPage);
-
-  // 디버깅: displayedBooks 로그
-  console.log("Displayed Books:", displayedBooks);
 
   return (
     <div className="container">
@@ -123,8 +127,18 @@ const BookList = () => {
       {/* 도서 목록 */}
       <ul>
         {displayedBooks.length > 0 ? (
-          displayedBooks.map((book, index) => (
-            <BookItem key={index} book={book} user={user} />
+          displayedBooks.map((book) => (
+            <li key={book.isbn}>
+              {/* Add Link to navigate to the detail page */}
+              <Link
+                to={{
+                  pathname: `/books-list/detail/${book.isbn}`,
+                  state: { book: book },
+                }}
+              >
+                <BookItem book={book} user={user} />
+              </Link>
+            </li>
           ))
         ) : (
           <li>결과가 없습니다.</li>

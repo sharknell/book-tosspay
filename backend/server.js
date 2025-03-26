@@ -162,26 +162,35 @@ app.get("/", async (req, res) => {
 
 initializeBooks(); // 서버 실행 시 도서 데이터 초기화
 
-// 도서 검색 API
-app.get("/api/books/search", (req, res) => {
-  const {
-    query = "인기 도서",
-    category = "all",
-    sort = "popularity",
-  } = req.query;
-
-  let sql = `SELECT * FROM books WHERE title LIKE ?`;
-
-  // 카테고리가 all이 아니면 카테고리로 필터링
-  if (category !== "all") {
-    sql += ` AND category_id = ?`;
+app.get("/api/book/:bookId", async (req, res) => {
+  const { bookId } = req.params;
+  try {
+    const [book] = await db.query("SELECT * FROM books WHERE id = ?", [bookId]);
+    if (book.length === 0) {
+      return res.status(404).json({ message: "책을 찾을 수 없습니다." });
+    }
+    res.json(book[0]);
+  } catch (error) {
+    console.error("책 정보 가져오기 오류:", error);
+    res
+      .status(500)
+      .json({ message: "책 정보를 가져오는 데 오류가 발생했습니다." });
   }
+});
 
-  // 정렬 기준에 따른 정렬 쿼리 추가
-  if (sort === "popularity") {
-    sql += ` ORDER BY stock DESC`; // 재고가 많은 순으로 정렬 (예시)
-  } else if (sort === "rating") {
-    sql += ` ORDER BY rating DESC`; // 별점 순으로 정렬 (예시)
+app.get("/api/book/:isbn", async (req, res) => {
+  const { isbn } = req.params;
+  try {
+    const [book] = await db.query("SELECT * FROM books WHERE isbn = ?", [isbn]);
+    if (book.length === 0) {
+      return res.status(404).json({ message: "책을 찾을 수 없습니다." });
+    }
+    res.json(book[0]);
+  } catch (error) {
+    console.error("책 정보 가져오기 오류:", error);
+    res
+      .status(500)
+      .json({ message: "책 정보를 가져오는 데 오류가 발생했습니다." });
   }
 });
 
