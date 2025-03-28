@@ -127,19 +127,19 @@ const BookList = () => {
       {/* 도서 목록 */}
       <ul>
         {displayedBooks.length > 0 ? (
-          displayedBooks.map((book) => (
-            <li key={book.isbn}>
-              {/* Add Link to navigate to the detail page */}
-              <Link
-                to={{
-                  pathname: `/books-list/detail/${book.isbn}`,
-                  state: { book: book },
-                }}
-              >
-                <BookItem book={book} user={user} />
-              </Link>
-            </li>
-          ))
+          displayedBooks.map((book) => {
+            // ISBN이 여러 개로 구성된 경우 첫 번째 값만 사용하도록 변환
+            const cleanIsbn = book.isbn.split(" ")[0]; // 공백을 기준으로 첫 번째 값만 추출
+            return (
+              <li key={cleanIsbn}>
+                <Link
+                  to={`/books-list/detail/${encodeURIComponent(cleanIsbn)}`}
+                >
+                  <BookItem book={book} user={user} />
+                </Link>
+              </li>
+            );
+          })
         ) : (
           <li>결과가 없습니다.</li>
         )}

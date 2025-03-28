@@ -94,7 +94,7 @@ const saveBookToDB = async (book) => {
       thumbnail: cover_image,
     } = book;
 
-    console.log(`📝 저장 시도: ${title} (${isbn})`); // 저장 시도 로그
+    // console.log(`📝 저장 시도: ${title} (${isbn})`); // 저장 시도 로그
 
     // 중복 체크
     const [existingBook] = await db.query(
@@ -114,10 +114,10 @@ const saveBookToDB = async (book) => {
           cover_image,
         ]
       );
-      console.log(`✅ 저장 완료: ${title} (ID: ${result.insertId})`);
+      // console.log(`✅ 저장 완료: ${title} (ID: ${result.insertId})`);
       return true;
     } else {
-      console.log(`⚠️ 이미 존재하는 책: ${title}`);
+      // console.log(`⚠️ 이미 존재하는 책: ${title}`);
       return false;
     }
   } catch (error) {

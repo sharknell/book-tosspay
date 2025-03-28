@@ -178,22 +178,6 @@ app.get("/api/book/:bookId", async (req, res) => {
   }
 });
 
-app.get("/api/book/:isbn", async (req, res) => {
-  const { isbn } = req.params;
-  try {
-    const [book] = await db.query("SELECT * FROM books WHERE isbn = ?", [isbn]);
-    if (book.length === 0) {
-      return res.status(404).json({ message: "책을 찾을 수 없습니다." });
-    }
-    res.json(book[0]);
-  } catch (error) {
-    console.error("책 정보 가져오기 오류:", error);
-    res
-      .status(500)
-      .json({ message: "책 정보를 가져오는 데 오류가 발생했습니다." });
-  }
-});
-
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 서버가 포트 ${PORT}에서 실행 중!`);

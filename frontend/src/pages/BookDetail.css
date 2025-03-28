@@ -1,98 +1,63 @@
 .book-detail-container {
   max-width: 400px;
-  margin: 20px auto;
+  margin: 0 auto;
   padding: 20px;
-  background: #f9f9f9;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  text-align: center;
-  position: relative;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .back-button {
-  background: none;
+  background-color: #007bff;
+  color: white;
   border: none;
-  font-size: 24px;
-  cursor: pointer;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  color: #333;
-}
-
-.book-header {
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 30px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.bookmark-button {
-  background: none;
-  border: none;
-  font-size: 22px;
+  justify-content: center;
   cursor: pointer;
-  color: #555;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  width: 100%;
 }
 
-.bookmark-button .bookmarked {
-  color: red;
+.back-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.book-info {
+  text-align: center;
 }
 
 .book-image {
-  width: 100%;
-  max-width: 280px;
+  width: 80%;
+  height: auto;
   border-radius: 8px;
-  margin-bottom: 20px; /* 이미지와 텍스트 사이에 여백 추가 */
+  margin: 20px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.price-info p {
-  font-weight: bold;
+.book-description {
+  text-align: left;
+  margin-top: 20px;
 }
 
-.rent-button,
-.payment-button {
-  width: 100%; /* 버튼이 컨테이너 너비에 맞도록 */
-  padding: 12px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 6px;
+.book-description p {
   font-size: 16px;
-  cursor: pointer;
-  box-sizing: border-box; /* 패딩을 포함한 전체 너비를 100%로 설정 */
+  margin: 8px 0;
+  color: #333;
 }
 
-.rent-button {
-  background: #007bff;
-  color: white;
+.book-description strong {
+  color: #007bff;
 }
 
-.payment-button {
-  background: #28a745;
-  color: white;
-}
-
-.rent-button:hover {
-  background: #0056b3;
-}
-
-.payment-button:hover {
-  background: #218838;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .book-detail-container {
-    width: 90%;
-    padding: 15px;
-  }
-
-  .book-image {
-    max-width: 250px;
-  }
-
-  .rent-button,
-  .payment-button {
-    font-size: 14px;
-    padding: 10px;
-  }
+.loading {
+  font-size: 18px;
+  text-align: center;
+  margin-top: 50px;
 }

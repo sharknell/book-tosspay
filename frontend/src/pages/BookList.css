@@ -141,3 +141,11 @@
   color: #e74c3c;
   font-weight: bold;
 }
+ul {
+  list-style-type: none; /* li 앞에 불릿 마커를 제거 */
+  padding-left: 0; /* 기본 패딩 제거 */
+}
+
+li::marker {
+  content: none; /* 마커 없애기 */
+}

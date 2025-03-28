@@ -33,7 +33,7 @@ function ProtectedLoginRoute({ children }) {
     return <div>로딩 중...</div>;
   }
 
-  return accessToken ? <Navigate to="/books" replace /> : children;
+  return accessToken ? <Navigate to="/books-list" replace /> : children;
 }
 
 // 메인 라우트 설정
@@ -59,11 +59,8 @@ function App() {
           }
         />
         <Route path="/books-list" element={<BooksList />} />
-        <Route
-          path="/books-list/detail/${book.isbn}"
-          element={<BookDetail />}
-        />
-
+        <Route path="/books-list/detail/:isbn" element={<BookDetail />} />{" "}
+        {/* 🔥 수정된 부분 */}
         <Route
           path="/profile"
           element={

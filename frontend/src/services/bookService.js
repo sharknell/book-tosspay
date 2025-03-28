@@ -14,12 +14,16 @@ export const getBooks = async (query, category, sortBy) => {
     return []; // 오류가 발생하면 빈 배열 반환
   }
 };
-// bookService.js
 export const getBookByIsbn = async (isbn) => {
-  const response = await fetch(`/api/book/${isbn}`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch book details");
+  try {
+    const response = await fetch(`/api/books/${isbn}`); // 서버의 해당 URL을 호출
+    if (!response.ok) {
+      throw new Error("책 정보를 가져오는 데 실패했습니다.");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("책 정보 오류:", error);
+    throw error;
   }
-  const data = await response.json();
-  return data;
 };
