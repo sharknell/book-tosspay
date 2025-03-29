@@ -1,27 +1,29 @@
 .book-detail-container {
   max-width: 400px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
   background-color: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  font-family: "Arial", sans-serif;
 }
 
 .back-button {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 12px 20px;
-  font-size: 16px;
+  padding: 12px 25px;
+  font-size: 18px;
   border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   transition: background-color 0.3s ease, transform 0.3s ease;
   width: 100%;
+  text-align: center;
 }
 
 .back-button:hover {
@@ -31,33 +33,107 @@
 
 .book-info {
   text-align: center;
+  font-size: 18px;
+}
+
+.book-info h1 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 600;
 }
 
 .book-image {
-  width: 80%;
+  width: 90%;
   height: auto;
-  border-radius: 8px;
+  border-radius: 10px;
   margin: 20px 0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.book-image:hover {
+  transform: scale(1.05);
 }
 
 .book-description {
   text-align: left;
   margin-top: 20px;
+  color: #555;
 }
 
 .book-description p {
   font-size: 16px;
-  margin: 8px 0;
-  color: #333;
+  margin: 12px 0;
 }
 
 .book-description strong {
   color: #007bff;
+  font-weight: bold;
+}
+
+.date-picker {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-top: 15px;
+  box-sizing: border-box;
+}
+
+.price-section {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.pay-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  font-size: 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.pay-button:hover {
+  background-color: #218838;
+  transform: scale(1.05);
 }
 
 .loading {
-  font-size: 18px;
+  font-size: 20px;
   text-align: center;
   margin-top: 50px;
+  font-weight: bold;
+}
+.bookmark-button {
+  background-color: transparent;
+  color: #007bff;
+  border: 2px solid #007bff;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  width: 100%;
+}
+
+.bookmark-button:hover {
+  background-color: #007bff;
+  color: white;
+  transform: scale(1.05);
+}
+
+.bookmark-button svg {
+  margin-right: 8px;
 }

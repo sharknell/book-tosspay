@@ -6,15 +6,15 @@ const fetch = require("node-fetch");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // jwt 모듈 추가
 const bookRoutes = require("./src/routes/bookRoutes");
-const bookmarksRoutes = require("./src/routes/bookmarksRoutes");
 const { authenticateToken } = require("./src/middleware/authMiddleware");
 const { initializeBooks } = require("./src/services/bookService");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+// 북마크 추가 및 제거 처리
+
 app.use("/api/books", bookRoutes);
-app.use("/api/bookmarks", bookmarksRoutes);
 // 회원가입 API
 app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;
@@ -161,22 +161,6 @@ app.get("/", async (req, res) => {
 });
 
 initializeBooks(); // 서버 실행 시 도서 데이터 초기화
-
-app.get("/api/book/:bookId", async (req, res) => {
-  const { bookId } = req.params;
-  try {
-    const [book] = await db.query("SELECT * FROM books WHERE id = ?", [bookId]);
-    if (book.length === 0) {
-      return res.status(404).json({ message: "책을 찾을 수 없습니다." });
-    }
-    res.json(book[0]);
-  } catch (error) {
-    console.error("책 정보 가져오기 오류:", error);
-    res
-      .status(500)
-      .json({ message: "책 정보를 가져오는 데 오류가 발생했습니다." });
-  }
-});
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
