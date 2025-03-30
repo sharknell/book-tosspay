@@ -1,4 +1,5 @@
 const express = require("express");
+const { searchBooks } = require("../services/bookService");
 const db = require("../config/db");
 
 const router = express.Router();
@@ -20,7 +21,9 @@ router.get("/search", async (req, res) => {
 // 📌 2️⃣ 도서 상세 정보 API
 router.get("/books/:isbn", async (req, res) => {
   const { isbn } = req.params;
-  const decodedIsbn = decodeURIComponent(isbn);
+  const decodedIsbn = decodeURIComponent(isbn); // URL 디코딩
+
+  console.log(`📌 디코딩된 ISBN: ${decodedIsbn}`); // 디코딩된 ISBN 확인
 
   try {
     const query = `SELECT * FROM books WHERE isbn = ? LIMIT 1`;
@@ -30,7 +33,7 @@ router.get("/books/:isbn", async (req, res) => {
       return res.status(404).json({ error: "책 정보를 찾을 수 없습니다." });
     }
 
-    res.json(rows[0]);
+    res.json(rows[0]); // 책 정보 반환
   } catch (error) {
     console.error("❌ 책 정보 가져오기 오류:", error);
     res.status(500).json({ error: "서버 오류" });
@@ -46,7 +49,7 @@ router.post("/bookmarks", async (req, res) => {
       .json({ error: "유효한 사용자 ID와 ISBN이 필요합니다." });
   }
 
-  userId = Number(userId); // userId를 숫자로 변환
+  userId = Number(userId);
   if (isNaN(userId)) {
     return res.status(400).json({ error: "userId는 숫자여야 합니다." });
   }

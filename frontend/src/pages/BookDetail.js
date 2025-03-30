@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { useAuth } from "../context/authContext";
+import { DayPicker } from "react-day-picker";
+import { format } from "date-fns";
+import "react-day-picker/dist/style.css";
 import "./BookDetail.css";
 
 const clientKey = "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO";
@@ -12,16 +15,17 @@ const BookDetail = () => {
   const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [tossPayments, setTossPayments] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [price, setPrice] = useState(10000);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const { user } = useAuth(); // 로그인된 사용자 정보 가져오기
-  const userId = user?.id; // user 객체에서 ID 추출
+  const { user } = useAuth();
+  const userId = user?.id;
 
-  // 도서 상세 정보 가져오기
   useEffect(() => {
     if (!isbn) return;
-
     const fetchBookDetail = async () => {
       try {
         const response = await fetch(
@@ -29,40 +33,35 @@ const BookDetail = () => {
         );
         if (!response.ok)
           throw new Error(`HTTP 오류! 상태 코드: ${response.status}`);
-
         const data = await response.json();
-        console.log("📚 API 응답 데이터:", data);
         setBook(data);
         setPrice(data.price || 10000);
       } catch (error) {
         console.error("❌ 도서 정보 가져오기 오류:", error);
       }
     };
-
     fetchBookDetail();
   }, [isbn]);
 
-  // TossPayments 초기화
   useEffect(() => {
     loadTossPayments(clientKey).then((payments) => setTossPayments(payments));
   }, []);
 
-  // 북마크 상태 확인
   useEffect(() => {
-    if (userId && book) {
-      checkBookmarkStatus(book.isbn);
+    if (startDate && endDate) {
+      const rentalDays =
+        Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+      setPrice(5000 * rentalDays);
     }
-  }, [userId, book]);
+  }, [startDate, endDate]);
 
-  // 결제 요청
-  const handlePayment = async () => {
+  const handleRentalPayment = async () => {
     if (!tossPayments || !book) return;
-
     try {
       await tossPayments.requestPayment("카드", {
         amount: price,
-        orderId: `order-${isbn}-${Date.now()}`,
-        orderName: book.title || "도서 결제",
+        orderId: `rental-${isbn}-${Date.now()}`,
+        orderName: `${book.title} 대여`,
         successUrl: window.location.origin + "/payment-success",
         failUrl: window.location.origin + "/payment-fail",
       });
@@ -71,60 +70,16 @@ const BookDetail = () => {
     }
   };
 
-  // 날짜 선택 핸들러
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    const newPrice = date.getDate() % 2 === 0 ? 12000 : 10000;
-    setPrice(newPrice);
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+    setShowStartDatePicker(false); // 날짜를 선택하면 날짜 선택기 숨김
   };
 
-  // 북마크 토글 (추가/삭제)
-  const toggleBookmark = async () => {
-    if (!userId) {
-      alert("로그인 후 북마크를 추가하세요.");
-      return;
-    }
-
-    try {
-      const url = "http://localhost:5001/api/books/bookmarks";
-      const method = isBookmarked ? "DELETE" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId, isbn }), // userId를 올바르게 전달
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          `${method === "POST" ? "북마크 추가" : "북마크 제거"} 실패`
-        );
-      }
-
-      setIsBookmarked(!isBookmarked); // 북마크 상태 갱신
-    } catch (error) {
-      console.error("❌ 북마크 처리 오류:", error);
-    }
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+    setShowEndDatePicker(false); // 날짜를 선택하면 날짜 선택기 숨김
   };
 
-  // 북마크 상태 조회
-  const checkBookmarkStatus = async (isbn) => {
-    if (!userId || !isbn) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:5001/api/books/bookmarks/${userId}/${isbn}`
-      );
-      const data = await response.json();
-      setIsBookmarked(data.isBookmarked);
-    } catch (error) {
-      console.error("❌ 북마크 상태 조회 오류:", error);
-    }
-  };
-
-  // 로딩 상태 처리
   if (!book) {
     return <div className="loading">📚 책 정보를 불러오는 중...</div>;
   }
@@ -155,25 +110,54 @@ const BookDetail = () => {
             <strong>재고:</strong>{" "}
             {book.stock > 0 ? `${book.stock}권 남음` : "품절"}
           </p>
-          <p>
-            <strong>선택한 날짜:</strong> {selectedDate.toDateString()}
-          </p>
-          <p>
-            <strong>가격:</strong> {price ? `${price}원` : "가격 정보 없음"}
-          </p>
         </div>
 
-        <button className="bookmark-button" onClick={toggleBookmark}>
-          {isBookmarked ? (
-            <FaBookmark style={{ color: "#ffd700" }} />
-          ) : (
-            <FaRegBookmark style={{ color: "#ddd" }} />
-          )}
-          {isBookmarked ? "북마크됨" : "북마크 추가"}
-        </button>
+        <div className="date-picker">
+          <p>
+            <strong>대여 기간 선택:</strong>
+          </p>
+          <div>
+            <button
+              onClick={() => setShowStartDatePicker(!showStartDatePicker)}
+              className="date-button"
+            >
+              {startDate
+                ? `시작일: ${format(startDate, "yyyy-MM-dd")}`
+                : "시작일 선택"}
+            </button>
+            {showStartDatePicker && (
+              <DayPicker
+                selected={startDate}
+                onDayClick={handleStartDateChange}
+              />
+            )}
+          </div>
 
-        <button className="pay-button" onClick={handlePayment}>
-          결제하기
+          <div>
+            <button
+              onClick={() => setShowEndDatePicker(!showEndDatePicker)}
+              className="date-button"
+            >
+              {endDate
+                ? `반납일: ${format(endDate, "yyyy-MM-dd")}`
+                : "반납일 선택"}
+            </button>
+            {showEndDatePicker && (
+              <DayPicker
+                selected={endDate}
+                onDayClick={handleEndDateChange}
+                disabled={{ before: startDate || new Date() }}
+              />
+            )}
+          </div>
+        </div>
+
+        <p>
+          <strong>대여 가격:</strong> {price}원
+        </p>
+
+        <button className="pay-button" onClick={handleRentalPayment}>
+          렌탈하기
         </button>
       </div>
     </div>
