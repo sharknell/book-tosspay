@@ -1,7 +1,6 @@
-// src/pages/Register.js
 import React, { useState } from "react";
 import { registerUser } from "../services/accountService"; // API 요청 함수
-import "./Login.css";
+import "./Register.css"; // 변경된 CSS 파일
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -21,9 +20,9 @@ const Register = () => {
   };
 
   return (
-    <div className="register">
-      <h2>회원가입</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="register-container">
+      <h2 className="register-title">회원가입</h2>
+      <form onSubmit={handleSubmit} className="register-form">
         <input
           type="email"
           placeholder="이메일"
@@ -45,6 +44,11 @@ const Register = () => {
         <button type="submit">회원가입</button>
       </form>
       {message && <p>{message}</p>}
+      <div className="login-link">
+        <p>
+          이미 계정이 있나요? <a href="/login">로그인</a>
+        </p>
+      </div>
     </div>
   );
 };
