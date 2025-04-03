@@ -57,7 +57,7 @@ const BookDetail = () => {
     const checkBookmark = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5001/api/bookmarks/${userId}/${isbn}`
+          `http://localhost:5001/api/books/bookmarks/${userId}/${isbn}`
         );
         const data = await response.json();
         setIsBookmarked(data.isBookmarked);
@@ -86,11 +86,14 @@ const BookDetail = () => {
   const handleBookmarkToggle = async () => {
     if (!userId || !isbn) return;
     try {
-      const response = await fetch(`http://localhost:5001/api/bookmarks`, {
-        method: isBookmarked ? "DELETE" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, isbn }),
-      });
+      const response = await fetch(
+        `http://localhost:5001/api/books/bookmarks`,
+        {
+          method: isBookmarked ? "DELETE" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, isbn }),
+        }
+      );
       if (!response.ok) throw new Error("북마크 처리 오류");
       setIsBookmarked(!isBookmarked);
     } catch (error) {
