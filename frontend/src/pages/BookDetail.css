@@ -1,19 +1,20 @@
 .book-detail-container {
-  max-width: 400px;
-  margin: 0 auto;
+  max-width: 420px;
+  margin: 20px auto;
   padding: 30px;
-  background-color: #ffffff;
+  background: linear-gradient(135deg, #ffffff, #f9f9f9);
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
   overflow: hidden;
   font-family: "Arial", sans-serif;
+  transition: all 0.3s ease;
 }
 
 .back-button {
-  background-color: #007bff;
+  background: #007bff;
   color: white;
   border: none;
-  padding: 12px 25px;
+  padding: 14px 25px;
   font-size: 18px;
   border-radius: 30px;
   display: flex;
@@ -21,14 +22,14 @@
   justify-content: center;
   cursor: pointer;
   margin-bottom: 25px;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s ease;
   width: 100%;
   text-align: center;
 }
 
 .back-button:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
+  background: #0056b3;
+  transform: translateY(-3px);
 }
 
 .book-info {
@@ -37,33 +38,34 @@
 }
 
 .book-info h1 {
-  font-size: 24px;
-  color: #333;
+  font-size: 26px;
+  color: #222;
   margin-bottom: 15px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .book-image {
-  width: 90%;
+  width: 95%;
   height: auto;
-  border-radius: 10px;
+  border-radius: 12px;
   margin: 20px 0;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
 }
 
 .book-image:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .book-description {
   text-align: left;
   margin-top: 20px;
-  color: #555;
+  color: #444;
+  line-height: 1.6;
 }
 
 .book-description p {
-  font-size: 16px;
+  font-size: 17px;
   margin: 12px 0;
 }
 
@@ -74,66 +76,75 @@
 
 .date-picker {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   font-size: 16px;
   border-radius: 8px;
   border: 1px solid #ddd;
   margin-top: 15px;
+  background: #fff;
   box-sizing: border-box;
+  transition: box-shadow 0.3s ease;
+}
+
+.date-picker:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .price-section {
   margin-top: 20px;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
+  color: #333;
 }
 
 .pay-button {
-  background-color: #28a745;
+  background: linear-gradient(135deg, #28a745, #218838);
   color: white;
   border: none;
-  padding: 15px 25px;
+  padding: 16px 30px;
   font-size: 18px;
   border-radius: 30px;
   cursor: pointer;
   width: 100%;
   margin-top: 20px;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .pay-button:hover {
-  background-color: #218838;
-  transform: scale(1.05);
+  background: #1e7e34;
+  transform: translateY(-3px);
 }
 
 .loading {
-  font-size: 20px;
+  font-size: 22px;
   text-align: center;
   margin-top: 50px;
   font-weight: bold;
+  color: #666;
 }
+
 .bookmark-button {
-  background-color: transparent;
+  background: transparent;
   color: #007bff;
   border: 2px solid #007bff;
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 12px 20px;
+  font-size: 17px;
   border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   margin-top: 20px;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s ease;
   width: 100%;
 }
 
 .bookmark-button:hover {
-  background-color: #007bff;
+  background: #007bff;
   color: white;
-  transform: scale(1.05);
+  transform: translateY(-3px);
 }
 
 .bookmark-button svg {
-  margin-right: 8px;
+  margin-right: 10px;
 }

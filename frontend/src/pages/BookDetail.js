@@ -15,14 +15,11 @@ const BookDetail = () => {
   const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [tossPayments, setTossPayments] = useState(null);
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [selectedRange, setSelectedRange] = useState({ from: null, to: null });
   const [price, setPrice] = useState(10000);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const { user } = useAuth();
   const userId = user?.id;
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
     if (!isbn) return;
@@ -48,12 +45,28 @@ const BookDetail = () => {
   }, []);
 
   useEffect(() => {
-    if (startDate && endDate) {
-      const rentalDays =
-        Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-      setPrice(5000 * rentalDays);
+    const { from, to } = selectedRange;
+    if (from && to) {
+      const rentalDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24)) + 1;
+      setPrice(500 * rentalDays);
     }
-  }, [startDate, endDate]);
+  }, [selectedRange]);
+
+  useEffect(() => {
+    if (!userId || !isbn) return;
+    const checkBookmark = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5001/api/bookmarks/${userId}/${isbn}`
+        );
+        const data = await response.json();
+        setIsBookmarked(data.isBookmarked);
+      } catch (error) {
+        console.error("❌ 북마크 상태 확인 오류:", error);
+      }
+    };
+    checkBookmark();
+  }, [userId, isbn]);
 
   const handleRentalPayment = async () => {
     if (!tossPayments || !book) return;
@@ -70,14 +83,19 @@ const BookDetail = () => {
     }
   };
 
-  const handleStartDateChange = (date) => {
-    setStartDate(date);
-    setShowStartDatePicker(false); // 날짜를 선택하면 날짜 선택기 숨김
-  };
-
-  const handleEndDateChange = (date) => {
-    setEndDate(date);
-    setShowEndDatePicker(false); // 날짜를 선택하면 날짜 선택기 숨김
+  const handleBookmarkToggle = async () => {
+    if (!userId || !isbn) return;
+    try {
+      const response = await fetch(`http://localhost:5001/api/bookmarks`, {
+        method: isBookmarked ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, isbn }),
+      });
+      if (!response.ok) throw new Error("북마크 처리 오류");
+      setIsBookmarked(!isBookmarked);
+    } catch (error) {
+      console.error("❌ 북마크 처리 오류:", error);
+    }
   };
 
   if (!book) {
@@ -87,7 +105,7 @@ const BookDetail = () => {
   return (
     <div className="book-detail-container">
       <button className="back-button" onClick={() => navigate("/books-list")}>
-        <FaArrowLeft />
+        <FaArrowLeft /> 뒤로가기
       </button>
       <div className="book-info">
         <h1>{book.title || "제목 없음"}</h1>
@@ -96,6 +114,10 @@ const BookDetail = () => {
           alt={book.title || "책 이미지"}
           className="book-image"
         />
+        <button className="bookmark-button" onClick={handleBookmarkToggle}>
+          {isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
+          {isBookmarked ? " 북마크 해제" : " 북마크 추가"}
+        </button>
         <div className="book-description">
           <p>
             <strong>저자:</strong> {book.author || "정보 없음"}
@@ -116,44 +138,22 @@ const BookDetail = () => {
           <p>
             <strong>대여 기간 선택:</strong>
           </p>
-          <div>
-            <button
-              onClick={() => setShowStartDatePicker(!showStartDatePicker)}
-              className="date-button"
-            >
-              {startDate
-                ? `시작일: ${format(startDate, "yyyy-MM-dd")}`
-                : "시작일 선택"}
-            </button>
-            {showStartDatePicker && (
-              <DayPicker
-                selected={startDate}
-                onDayClick={handleStartDateChange}
-              />
-            )}
-          </div>
-
-          <div>
-            <button
-              onClick={() => setShowEndDatePicker(!showEndDatePicker)}
-              className="date-button"
-            >
-              {endDate
-                ? `반납일: ${format(endDate, "yyyy-MM-dd")}`
-                : "반납일 선택"}
-            </button>
-            {showEndDatePicker && (
-              <DayPicker
-                selected={endDate}
-                onDayClick={handleEndDateChange}
-                disabled={{ before: startDate || new Date() }}
-              />
-            )}
-          </div>
+          <DayPicker
+            mode="range"
+            selected={selectedRange}
+            onSelect={setSelectedRange}
+            disabled={{ before: new Date() }}
+          />
+          {selectedRange.from && selectedRange.to && (
+            <p>
+              📅 {format(selectedRange.from, "yyyy-MM-dd")} ~{" "}
+              {format(selectedRange.to, "yyyy-MM-dd")}
+            </p>
+          )}
         </div>
 
-        <p>
-          <strong>대여 가격:</strong> {price}원
+        <p className="price-section">
+          <strong>대여 가격:</strong> {price.toLocaleString()}원
         </p>
 
         <button className="pay-button" onClick={handleRentalPayment}>
