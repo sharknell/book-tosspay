@@ -20,6 +20,7 @@ const BookDetail = () => {
   const { user } = useAuth();
   const userId = user?.id;
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (!isbn) return;
@@ -35,6 +36,7 @@ const BookDetail = () => {
         setPrice(data.price || 10000);
       } catch (error) {
         console.error("❌ 도서 정보 가져오기 오류:", error);
+        setErrorMessage("도서 정보를 불러오는 중 오류가 발생했습니다.");
       }
     };
     fetchBookDetail();
@@ -45,20 +47,13 @@ const BookDetail = () => {
   }, []);
 
   useEffect(() => {
-    const { from, to } = selectedRange;
-    if (from && to) {
-      const rentalDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24)) + 1;
-      setPrice(500 * rentalDays);
-    }
-  }, [selectedRange]);
-
-  useEffect(() => {
     if (!userId || !isbn) return;
     const checkBookmark = async () => {
       try {
         const response = await fetch(
           `http://localhost:5001/api/books/bookmarks/${userId}/${isbn}`
         );
+        if (!response.ok) throw new Error("북마크 상태 확인 오류");
         const data = await response.json();
         setIsBookmarked(data.isBookmarked);
       } catch (error) {
@@ -67,6 +62,16 @@ const BookDetail = () => {
     };
     checkBookmark();
   }, [userId, isbn]);
+
+  useEffect(() => {
+    const { from, to } = selectedRange;
+    if (from && to) {
+      const rentalDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24)) + 1;
+      setPrice(500 * rentalDays);
+    } else {
+      setPrice(10000);
+    }
+  }, [selectedRange]);
 
   const handleRentalPayment = async () => {
     if (!tossPayments || !book) return;
@@ -85,19 +90,22 @@ const BookDetail = () => {
 
   const handleBookmarkToggle = async () => {
     if (!userId || !isbn) return;
+    const newBookmarkState = !isBookmarked;
+    setIsBookmarked(newBookmarkState);
+
     try {
       const response = await fetch(
         `http://localhost:5001/api/books/bookmarks`,
         {
-          method: isBookmarked ? "DELETE" : "POST",
+          method: newBookmarkState ? "POST" : "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId, isbn }),
         }
       );
       if (!response.ok) throw new Error("북마크 처리 오류");
-      setIsBookmarked(!isBookmarked);
     } catch (error) {
       console.error("❌ 북마크 처리 오류:", error);
+      setIsBookmarked(!newBookmarkState);
     }
   };
 
@@ -107,6 +115,7 @@ const BookDetail = () => {
 
   return (
     <div className="book-detail-container">
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       <button className="back-button" onClick={() => navigate("/books-list")}>
         <FaArrowLeft /> 뒤로가기
       </button>
@@ -136,7 +145,6 @@ const BookDetail = () => {
             {book.stock > 0 ? `${book.stock}권 남음` : "품절"}
           </p>
         </div>
-
         <div className="date-picker">
           <p>
             <strong>대여 기간 선택:</strong>
@@ -154,12 +162,14 @@ const BookDetail = () => {
             </p>
           )}
         </div>
-
         <p className="price-section">
           <strong>대여 가격:</strong> {price.toLocaleString()}원
         </p>
-
-        <button className="pay-button" onClick={handleRentalPayment}>
+        <button
+          className="pay-button"
+          onClick={handleRentalPayment}
+          disabled={!selectedRange.from || !selectedRange.to}
+        >
           렌탈하기
         </button>
       </div>
