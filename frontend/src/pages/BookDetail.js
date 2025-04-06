@@ -10,6 +10,10 @@ import {
   toggleBookmark,
 } from "../redux/slices/bookmarkSlice";
 import { setRentalPeriod } from "../redux/slices/rentalSlice";
+import { toast, ToastContainer } from "react-toastify";
+import { loadTossPayments } from "@tosspayments/payment-sdk";
+
+import "react-toastify/dist/ReactToastify.css";
 import "react-day-picker/dist/style.css";
 import "../styles/BookDetail.css";
 
@@ -29,6 +33,11 @@ const BookDetail = () => {
 
   const handleBookmarkToggle = () => {
     dispatch(toggleBookmark({ userId: 1, isbn, isBookmarked }));
+    toast.success(
+      isBookmarked
+        ? "📕 북마크가 제거되었습니다."
+        : "📗 북마크에 추가되었습니다."
+    );
   };
 
   const handleDateSelection = (range) => {
@@ -39,15 +48,52 @@ const BookDetail = () => {
     dispatch(setRentalPeriod(range));
   };
 
+  const handleRent = async () => {
+    if (selectedRange.from && selectedRange.to) {
+      const clientKey = "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"; // Toss Payments 테스트용 클라이언트 키
+
+      const rentalInfo = {
+        title: book.title,
+        price: price,
+        from: format(selectedRange.from, "yyyy-MM-dd"),
+        to: format(selectedRange.to, "yyyy-MM-dd"),
+        orderId: `order_${Date.now()}`,
+      };
+
+      // 콘솔에 결제 관련 정보 출력
+      console.log("📦 결제 요청 정보:", rentalInfo);
+
+      try {
+        const tossPayments = await loadTossPayments(clientKey);
+
+        await tossPayments.requestPayment("카드", {
+          amount: rentalInfo.price,
+          orderId: rentalInfo.orderId,
+          orderName: `${rentalInfo.title} 대여`,
+          customerName: "홍길동",
+          successUrl: `${window.location.origin}/payment/success`,
+          failUrl: `${window.location.origin}/payment/fail`,
+        });
+      } catch (error) {
+        console.error("❌ Toss 결제 실패:", error);
+        toast.error("❌ 결제에 실패했습니다. 다시 시도해주세요.");
+      }
+    } else {
+      toast.warning("📅 대여 기간을 먼저 선택해주세요.");
+    }
+  };
+
   if (loading)
     return <div className="loading">📚 책 정보를 불러오는 중...</div>;
   if (error) return <div className="error">❌ {error}</div>;
 
   return (
     <div className="book-detail-container">
+      <ToastContainer position="top-center" autoClose={2000} />
       <button className="back-button" onClick={() => navigate("/books-list")}>
         <FaArrowLeft /> 뒤로가기
       </button>
+
       {book && (
         <>
           <h1>{book.title}</h1>
@@ -56,10 +102,26 @@ const BookDetail = () => {
             alt={book.title}
             className="book-image"
           />
+
           <button className="bookmark-button" onClick={handleBookmarkToggle}>
             {isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
             {isBookmarked ? " 북마크 해제" : " 북마크 추가"}
           </button>
+
+          <div className="book-info">
+            <p>
+              <strong>저자:</strong> {book.author}
+            </p>
+            <p>
+              <strong>출판사:</strong> {book.publisher}
+            </p>
+            <p>
+              <strong>출판일:</strong> {book.published_date?.split("T")[0]}
+            </p>
+            <p>
+              <strong>ISBN:</strong> {book.isbn}
+            </p>
+          </div>
 
           <div className="date-picker">
             <p>
@@ -82,6 +144,14 @@ const BookDetail = () => {
           <p className="price-section">
             <strong>대여 가격:</strong> {price.toLocaleString()}원
           </p>
+
+          <button
+            className="rent-button"
+            onClick={handleRent}
+            disabled={!selectedRange.from || !selectedRange.to}
+          >
+            📦 대여하기 (결제)
+          </button>
         </>
       )}
     </div>
