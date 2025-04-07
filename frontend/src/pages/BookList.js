@@ -3,7 +3,7 @@ import { getBooks } from "../services/bookService";
 import BookItem from "./BookItem";
 import { useAuth } from "../context/authContext";
 import { Link } from "react-router-dom"; // Import Link
-import "./BookList.css";
+import "../styles/BookList.css"; // CSS 파일 import
 
 const BookList = () => {
   const { user } = useAuth();

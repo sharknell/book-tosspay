@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
-import "./BookItem.css";
+import "../styles/BookItem.css"; // CSS 파일 import
 
 const BookItem = ({ book }) => {
   const navigate = useNavigate();

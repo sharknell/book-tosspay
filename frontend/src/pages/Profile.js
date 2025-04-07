@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/authContext";
 import axios from "axios";
+
 const Profile = () => {
   const { accessToken, refreshAccessToken } = useAuth();
   const [user, setUser] = useState(null);
