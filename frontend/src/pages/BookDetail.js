@@ -12,6 +12,7 @@ import {
 import { setRentalPeriod } from "../redux/slices/rentalSlice";
 import { toast, ToastContainer } from "react-toastify";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
+import { useAuth } from "../context/authContext"; // 🔥 추가된 부분
 
 import "react-toastify/dist/ReactToastify.css";
 import "react-day-picker/dist/style.css";
@@ -21,6 +22,7 @@ const BookDetail = () => {
   const { isbn } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useAuth(); // 🔥 현재 로그인된 유저 정보
 
   const { book, loading, error } = useSelector((state) => state.book);
   const { isBookmarked } = useSelector((state) => state.bookmark);
@@ -28,11 +30,17 @@ const BookDetail = () => {
 
   useEffect(() => {
     dispatch(fetchBookDetail(isbn));
-    dispatch(fetchBookmarkStatus({ userId: 1, isbn }));
-  }, [dispatch, isbn]);
+    if (user?.id) {
+      dispatch(fetchBookmarkStatus({ userId: user.id, isbn }));
+    }
+  }, [dispatch, isbn, user]);
 
   const handleBookmarkToggle = () => {
-    dispatch(toggleBookmark({ userId: 1, isbn, isBookmarked }));
+    if (!user) {
+      toast.warn("🔐 로그인 후 이용해주세요.");
+      return;
+    }
+    dispatch(toggleBookmark({ userId: user.id, isbn, isBookmarked }));
     toast.success(
       isBookmarked
         ? "📕 북마크가 제거되었습니다."
@@ -47,20 +55,27 @@ const BookDetail = () => {
     }
     dispatch(setRentalPeriod(range));
   };
-
   const handleRent = async () => {
+    if (!user) {
+      toast.warn("🔐 로그인 후 이용해주세요.");
+      return;
+    }
+
     if (selectedRange.from && selectedRange.to) {
-      const clientKey = "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO"; // Toss Payments 테스트용 클라이언트 키
+      const clientKey = "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO";
 
       const rentalInfo = {
+        userId: user.id, // 사용자 ID
+        email: user.email, // 🔥 사용자 이메일 추가
         title: book.title,
         price: price,
+        isbn: book.isbn,
         from: format(selectedRange.from, "yyyy-MM-dd"),
         to: format(selectedRange.to, "yyyy-MM-dd"),
         orderId: `order_${Date.now()}`,
       };
 
-      // 콘솔에 결제 관련 정보 출력
+      // 콘솔에 출력
       console.log("📦 결제 요청 정보:", rentalInfo);
 
       try {
@@ -70,7 +85,7 @@ const BookDetail = () => {
           amount: rentalInfo.price,
           orderId: rentalInfo.orderId,
           orderName: `${rentalInfo.title} 대여`,
-          customerName: "홍길동",
+          customerName: user.name || "홍길동",
           successUrl: `${window.location.origin}/payment/success`,
           failUrl: `${window.location.origin}/payment/fail`,
         });
