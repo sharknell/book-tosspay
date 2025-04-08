@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/authContext";
-import "./Header.css";
+import "../styles/Header.css"; // CSS 파일 import
 
 const Header = () => {
   const { accessToken, logout, refreshAccessToken } = useAuth();

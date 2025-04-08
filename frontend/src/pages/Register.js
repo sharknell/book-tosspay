@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { registerUser } from "../services/accountService"; // API 요청 함수
-import "./Register.css"; // 변경된 CSS 파일
+import "../styles/Register.css"; // CSS 파일 import
 
 const Register = () => {
   const [email, setEmail] = useState("");

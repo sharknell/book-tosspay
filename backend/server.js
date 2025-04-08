@@ -6,6 +6,7 @@ const fetch = require("node-fetch");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // jwt 모듈 추가
 const bookRoutes = require("./src/routes/bookRoutes");
+const rentalsRoutes = require("./src/routes/rentalsRoutes");
 const { authenticateToken } = require("./src/middleware/authMiddleware");
 const { initializeBooks } = require("./src/services/bookService");
 
@@ -13,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 // 북마크 추가 및 제거 처리
-
+app.use("/api/rentals", rentalsRoutes);
 app.use("/api/books", bookRoutes);
 // 회원가입 API
 app.post("/api/register", async (req, res) => {

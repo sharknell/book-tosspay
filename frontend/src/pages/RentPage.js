@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "./RentPage.css"; // 스타일 적용
+import "../styles/RentPage.css"; // CSS 파일 import
 
 const RENTAL_PRICES = {
   7: 2000,

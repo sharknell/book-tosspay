@@ -65,8 +65,8 @@ const BookDetail = () => {
       const clientKey = "test_ck_pP2YxJ4K87RqyvqEbgjLrRGZwXLO";
 
       const rentalInfo = {
-        userId: user.id, // 사용자 ID
-        email: user.email, // 🔥 사용자 이메일 추가
+        userId: user.id,
+        email: user.email,
         title: book.title,
         price: price,
         isbn: book.isbn,
@@ -75,7 +75,6 @@ const BookDetail = () => {
         orderId: `order_${Date.now()}`,
       };
 
-      // 콘솔에 출력
       console.log("📦 결제 요청 정보:", rentalInfo);
 
       try {
@@ -86,9 +85,15 @@ const BookDetail = () => {
           orderId: rentalInfo.orderId,
           orderName: `${rentalInfo.title} 대여`,
           customerName: user.name || "홍길동",
-          successUrl: `${window.location.origin}/payment/success`,
+          successUrl: `${
+            window.location.origin
+          }/payment/success?info=${encodeURIComponent(
+            JSON.stringify(rentalInfo)
+          )}`,
           failUrl: `${window.location.origin}/payment/fail`,
         });
+
+        // 🔽 아래 코드는 결제 성공 후 별도 페이지에서 처리
       } catch (error) {
         console.error("❌ Toss 결제 실패:", error);
         toast.error("❌ 결제에 실패했습니다. 다시 시도해주세요.");
