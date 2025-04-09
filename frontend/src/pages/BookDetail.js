@@ -37,7 +37,10 @@ const BookDetail = () => {
 
   const handleBookmarkToggle = () => {
     if (!user) {
-      toast.warn("🔐 로그인 후 이용해주세요.");
+      toast.warn(
+        "🔐 로그인 후 이용해주세요. 자동으로 로그인 페이지로 이동됩니다."
+      );
+      setTimeout(() => navigate("/login"), 5000); // 5초 뒤 이동
       return;
     }
     dispatch(toggleBookmark({ userId: user.id, isbn, isBookmarked }));
@@ -57,7 +60,11 @@ const BookDetail = () => {
   };
   const handleRent = async () => {
     if (!user) {
-      toast.warn("🔐 로그인 후 이용해주세요.");
+      toast.warn(
+        "🔐 로그인 후 이용해주세요. 자동으로 로그인 페이지로 이동됩니다."
+      );
+
+      setTimeout(() => navigate("/login"), 5000); // 5초 뒤 이동
       return;
     }
 
