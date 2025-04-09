@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/authContext";
-import "../styles/Header.css"; // CSS 파일 import
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../styles/Header.css";
 
 const Header = () => {
   const { accessToken, logout, refreshAccessToken } = useAuth();
@@ -19,7 +21,7 @@ const Header = () => {
         } catch (error) {
           console.error("사용자 정보 가져오기 실패:", error);
           if (error.response && error.response.status === 403) {
-            refreshAccessToken(); // 토큰 만료 시 갱신 시도
+            refreshAccessToken();
           }
           setCurrentUser(null);
         }
@@ -34,11 +36,12 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     setCurrentUser(null);
-    alert("로그아웃 되었습니다.");
+    toast.info("👋 로그아웃 되었습니다.");
   };
 
   return (
     <header className="header">
+      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
       <div className="logo">
         <Link to="/" className="header-title">
           <h1 className="header-title-style">Book Rental</h1>
@@ -51,7 +54,6 @@ const Header = () => {
               도서 목록
             </Link>
           </li>
-
           {currentUser ? (
             <>
               <li>

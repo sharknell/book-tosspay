@@ -1,24 +1,30 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
-// import "./Login.css";
 import { Link } from "react-router-dom";
-import "../styles/Login.css"; // CSS 파일 import}
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../styles/Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const success = await login(email, password); // 로그인 함수 호출
+    setLoading(true);
+
+    const success = await login(email, password);
+    setLoading(false);
+
     if (success) {
-      alert("로그인 성공!");
-      navigate("/books-list"); // 로그인 성공 후 /books로 이동
+      toast.success("✅ 로그인 성공!");
+      navigate("/books-list");
     } else {
-      alert("로그인 실패");
+      toast.error("❌ 이메일 또는 비밀번호가 올바르지 않습니다.");
     }
   };
 
@@ -34,6 +40,7 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
         <div>
@@ -44,16 +51,22 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
-        <button type="submit">로그인</button>
+
+        <button type="submit" disabled={loading}>
+          {loading ? "로그인 중..." : "로그인"}
+        </button>
+
         <p>
-          아직 회원이 아니신가요?
+          아직 회원이 아니신가요?{" "}
           <Link to="/register" className="signup-link">
             회원가입
           </Link>
         </p>
       </form>
+      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </div>
   );
 };
