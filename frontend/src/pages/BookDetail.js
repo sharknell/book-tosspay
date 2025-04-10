@@ -12,7 +12,7 @@ import {
 import { setRentalPeriod } from "../redux/slices/rentalSlice";
 import { toast, ToastContainer } from "react-toastify";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
-import { useAuth } from "../context/authContext"; // 🔥 추가된 부분
+import { useAuth } from "../context/authContext";
 
 import "react-toastify/dist/ReactToastify.css";
 import "react-day-picker/dist/style.css";
@@ -22,11 +22,13 @@ const BookDetail = () => {
   const { isbn } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user } = useAuth(); // 🔥 현재 로그인된 유저 정보
+  const { user } = useAuth();
 
   const { book, loading, error } = useSelector((state) => state.book);
   const { isBookmarked } = useSelector((state) => state.bookmark);
   const { selectedRange, price } = useSelector((state) => state.rental);
+
+  const MAX_RENT_DAYS = 14;
 
   useEffect(() => {
     dispatch(fetchBookDetail(isbn));
@@ -35,19 +37,27 @@ const BookDetail = () => {
     }
   }, [dispatch, isbn, user]);
 
+  const handleRequireLogin = () => {
+    toast.warn(
+      "🔐 로그인 후 이용해주세요. 5초 후 로그인 페이지로 이동합니다.",
+      {
+        autoClose: 3000,
+      }
+    );
+    setTimeout(() => navigate("/login"), 5000);
+  };
+
   const handleBookmarkToggle = () => {
     if (!user) {
-      toast.warn(
-        "🔐 로그인 후 이용해주세요. 자동으로 로그인 페이지로 이동됩니다."
-      );
-      setTimeout(() => navigate("/login"), 5000); // 5초 뒤 이동
+      handleRequireLogin();
       return;
     }
     dispatch(toggleBookmark({ userId: user.id, isbn, isBookmarked }));
     toast.success(
       isBookmarked
         ? "📕 북마크가 제거되었습니다."
-        : "📗 북마크에 추가되었습니다."
+        : "📗 북마크에 추가되었습니다.",
+      { autoClose: 2000 }
     );
   };
 
@@ -58,13 +68,10 @@ const BookDetail = () => {
     }
     dispatch(setRentalPeriod(range));
   };
+
   const handleRent = async () => {
     if (!user) {
-      toast.warn(
-        "🔐 로그인 후 이용해주세요. 자동으로 로그인 페이지로 이동됩니다."
-      );
-
-      setTimeout(() => navigate("/login"), 5000); // 5초 뒤 이동
+      handleRequireLogin();
       return;
     }
 
@@ -75,14 +82,12 @@ const BookDetail = () => {
         userId: user.id,
         email: user.email,
         title: book.title,
-        price: price,
+        price,
         isbn: book.isbn,
         from: format(selectedRange.from, "yyyy-MM-dd"),
         to: format(selectedRange.to, "yyyy-MM-dd"),
         orderId: `order_${Date.now()}`,
       };
-
-      console.log("📦 결제 요청 정보:", rentalInfo);
 
       try {
         const tossPayments = await loadTossPayments(clientKey);
@@ -99,8 +104,6 @@ const BookDetail = () => {
           )}`,
           failUrl: `${window.location.origin}/payment/fail`,
         });
-
-        // 🔽 아래 코드는 결제 성공 후 별도 페이지에서 처리
       } catch (error) {
         console.error("❌ Toss 결제 실패:", error);
         toast.error("❌ 결제에 실패했습니다. 다시 시도해주세요.");
@@ -116,8 +119,12 @@ const BookDetail = () => {
 
   return (
     <div className="book-detail-container">
-      <ToastContainer position="top-center" autoClose={2000} />
-      <button className="back-button" onClick={() => navigate("/books-list")}>
+      <ToastContainer position="top-center" />
+      <button
+        className="back-button"
+        onClick={() => navigate("/books-list")}
+        aria-label="뒤로가기"
+      >
         <FaArrowLeft /> 뒤로가기
       </button>
 
@@ -126,11 +133,15 @@ const BookDetail = () => {
           <h1>{book.title}</h1>
           <img
             src={book.cover_image || "/default-thumbnail.jpg"}
-            alt={book.title}
+            alt={`${book.title} 표지`}
             className="book-image"
           />
 
-          <button className="bookmark-button" onClick={handleBookmarkToggle}>
+          <button
+            className="bookmark-button"
+            onClick={handleBookmarkToggle}
+            aria-label="북마크 토글"
+          >
             {isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
             {isBookmarked ? " 북마크 해제" : " 북마크 추가"}
           </button>
@@ -143,7 +154,8 @@ const BookDetail = () => {
               <strong>출판사:</strong> {book.publisher}
             </p>
             <p>
-              <strong>출판일:</strong> {book.published_date?.split("T")[0]}
+              <strong>출판일:</strong>{" "}
+              {book.published_date?.split("T")[0] || "미상"}
             </p>
             <p>
               <strong>ISBN:</strong> {book.isbn}
@@ -152,13 +164,16 @@ const BookDetail = () => {
 
           <div className="date-picker">
             <p>
-              <strong>대여 기간 선택:</strong> (최대 2주)
+              <strong>대여 기간 선택:</strong> (최대 {MAX_RENT_DAYS}일)
             </p>
             <DayPicker
               mode="range"
               selected={selectedRange}
               onSelect={handleDateSelection}
-              disabled={{ before: new Date(), after: addDays(new Date(), 14) }}
+              disabled={{
+                before: new Date(),
+                after: addDays(new Date(), MAX_RENT_DAYS),
+              }}
             />
             {selectedRange.from && selectedRange.to && (
               <p>
@@ -176,6 +191,7 @@ const BookDetail = () => {
             className="rent-button"
             onClick={handleRent}
             disabled={!selectedRange.from || !selectedRange.to}
+            aria-label="대여 결제하기"
           >
             📦 대여하기 (결제)
           </button>
