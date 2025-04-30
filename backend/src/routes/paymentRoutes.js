@@ -11,9 +11,26 @@ router.post("/success", async (req, res) => {
   }
 
   try {
+    // 주문 ID 중복 체크
+    const existingOrder = await db.query(
+      "SELECT * FROM rentals WHERE order_id = ?",
+      [orderId]
+    );
+
+    if (existingOrder.length > 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "이미 처리된 주문입니다." });
+    }
+
+    // 대여 정보 저장
     await db.query(
-      "INSERT INTO rentals (user_id, isbn, title, price, rental_start, rental_end, order_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [userId, isbn, title, price, from, to, orderId]
+      "INSERT INTO rentals (user_id, isbn, title, price, rental_start, rental_end, returned, order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [userId, isbn, title, price, from, to, false, orderId]
+    );
+
+    console.log(
+      `✅ 대여 정보 저장 완료 - userId: ${userId}, isbn: ${isbn}, title: ${title}, price: ${price}, from: ${from}, to: ${to}, orderId: ${orderId}`
     );
     res.json({ success: true, message: "대여 저장 완료" });
   } catch (error) {
@@ -27,8 +44,20 @@ router.post("/fail", async (req, res) => {
   try {
     const { reason, orderId, userId } = req.body;
 
-    // 선택: 실패 로그 테이블 만들었을 경우
-    await pool.query(
+    // 주문 ID 중복 체크
+    const existingFailure = await db.query(
+      "SELECT * FROM payment_failures WHERE order_id = ?",
+      [orderId]
+    );
+
+    if (existingFailure.length > 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "이미 실패한 결제입니다." });
+    }
+
+    // 결제 실패 기록
+    await db.query(
       "INSERT INTO payment_failures (user_id, order_id, reason) VALUES (?, ?, ?)",
       [userId || null, orderId || null, reason || "Unknown"]
     );

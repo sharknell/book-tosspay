@@ -7,8 +7,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // jwt 모듈 추가
 const bookRoutes = require("./src/routes/bookRoutes");
 const rentalsRoutes = require("./src/routes/rentalsRoutes");
-const paymentRoutes = require("./src/routes/payment");
+const paymentRoutes = require("./src/routes/paymentRoutes");
 const mypageRoutes = require("./src/routes/mypageRoutes");
+const returnRoutes = require("./src/routes/returnRoutes");
 const { authenticateToken } = require("./src/middleware/authMiddleware");
 const { initializeBooks } = require("./src/services/bookService");
 
@@ -148,6 +149,8 @@ app.get("/", async (req, res) => {
     res.status(500).send("❌ 데이터베이스 연결 실패!");
   }
 });
+
+app.use("/api/return", returnRoutes); // 반납 라우트 추가
 
 initializeBooks(); // 서버 실행 시 도서 데이터 초기화
 

@@ -1,4 +1,3 @@
-// PaymentSuccess.jsx
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -13,27 +12,42 @@ const PaymentSuccess = () => {
     const infoParam = query.get("info");
 
     if (infoParam) {
-      const rentalInfo = JSON.parse(decodeURIComponent(infoParam));
+      try {
+        // Ensure the infoParam is decoded and parsed correctly
+        const decodedInfo = decodeURIComponent(infoParam);
 
-      // 서버에 대여 정보 저장
-      const saveRental = async () => {
-        try {
-          const res = await axios.post(
-            "http://localhost:5001/toss-pay/success",
-            rentalInfo
-          );
-          if (res.data.success) {
-            toast.success("🎉 대여가 완료되었습니다!");
-          } else {
-            toast.error("⚠️ 대여 정보 저장에 실패했습니다.");
+        // Try parsing the decoded parameter
+        const rentalInfo = JSON.parse(decodedInfo);
+
+        // 서버에 대여 정보 저장
+        const saveRental = async () => {
+          try {
+            const res = await axios.post(
+              "http://localhost:5001/toss-pay/success",
+              rentalInfo
+            );
+            if (res.data.success) {
+              toast.success("🎉 대여가 완료되었습니다!");
+
+              setTimeout(() => {
+                // 대여 내역 페이지로 이동
+                navigate("/profile");
+              }, 5000);
+            } else {
+              toast.error("⚠️ 대여 정보 저장에 실패했습니다.");
+            }
+          } catch (error) {
+            console.error("대여 저장 오류:", error);
+            toast.error("🚨 서버 오류로 대여 저장 실패");
           }
-        } catch (error) {
-          console.error("대여 저장 오류:", error);
-          toast.error("🚨 서버 오류로 대여 저장 실패");
-        }
-      };
+        };
 
-      saveRental();
+        saveRental();
+      } catch (error) {
+        console.error("❌ 정보 파싱 오류:", error);
+        toast.error("❗ 잘못된 접근입니다. 정보 파싱 오류.");
+        navigate("/books-list");
+      }
     } else {
       toast.warn("❗ 유효하지 않은 접근입니다.");
       navigate("/books-list");
