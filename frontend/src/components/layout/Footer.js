@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/authContext";
-import "../styles/Footer.css"; // CSS 파일 import
+import { useAuth } from "../../context/authContext";
+import "../../styles/Footer.css"; // CSS 파일 import
 
 const Footer = () => {
   const { accessToken } = useAuth();

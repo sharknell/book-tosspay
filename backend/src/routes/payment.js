@@ -22,9 +22,22 @@ router.post("/success", async (req, res) => {
   }
 });
 
-// GET /payment/fail
-router.get("/fail", (req, res) => {
-  res.status(200).json({ success: false, message: "결제 실패" });
+// 결제 실패 기록용
+router.post("/fail", async (req, res) => {
+  try {
+    const { reason, orderId, userId } = req.body;
+
+    // 선택: 실패 로그 테이블 만들었을 경우
+    await pool.query(
+      "INSERT INTO payment_failures (user_id, order_id, reason) VALUES (?, ?, ?)",
+      [userId || null, orderId || null, reason || "Unknown"]
+    );
+
+    res.status(200).json({ message: "❌ 결제 실패 기록 완료" });
+  } catch (error) {
+    console.error("❌ 결제 실패 기록 오류:", error);
+    res.status(500).json({ message: "서버 오류로 실패 기록에 실패했습니다." });
+  }
 });
 
 module.exports = router;

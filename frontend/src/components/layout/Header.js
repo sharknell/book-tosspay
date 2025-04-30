@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../context/authContext";
+import { useAuth } from "../../context/authContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../styles/Header.css";
+import "../../styles/Header.css";
 
 const Header = () => {
   const { accessToken, logout, refreshAccessToken } = useAuth();
@@ -14,9 +14,12 @@ const Header = () => {
     const fetchUser = async () => {
       if (accessToken) {
         try {
-          const response = await axios.get("http://localhost:5001/api/user", {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
+          const response = await axios.get(
+            "http://localhost:5001/api/mypage/user",
+            {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            }
+          );
           setCurrentUser(response.data);
         } catch (error) {
           console.error("사용자 정보 가져오기 실패:", error);

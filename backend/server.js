@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken"); // jwt 모듈 추가
 const bookRoutes = require("./src/routes/bookRoutes");
 const rentalsRoutes = require("./src/routes/rentalsRoutes");
 const paymentRoutes = require("./src/routes/payment");
+const mypageRoutes = require("./src/routes/mypageRoutes");
 const { authenticateToken } = require("./src/middleware/authMiddleware");
 const { initializeBooks } = require("./src/services/bookService");
 
@@ -130,24 +131,8 @@ app.post("/api/refresh", async (req, res) => {
     res.status(403).json({ message: "리프레시 토큰이 유효하지 않습니다." });
   }
 });
-app.get("/api/user", authenticateToken, async (req, res) => {
-  try {
-    // 🔍 DB에서 사용자 정보 조회
-    const [users] = await db.query(
-      "SELECT id, username, email FROM users WHERE id = ?",
-      [req.user.userId]
-    );
 
-    if (users.length === 0) {
-      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
-    }
-
-    res.json(users[0]); // ✅ 사용자 정보 반환
-  } catch (error) {
-    console.error("사용자 정보 가져오기 오류:", error);
-    res.status(500).json({ message: "서버 오류" });
-  }
-});
+app.use("/api/mypage", mypageRoutes); // 마이페이지 라우트 추가
 
 app.use("/toss-pay", paymentRoutes); // 결제 라우트 추가
 

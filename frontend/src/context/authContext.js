@@ -25,11 +25,14 @@ export const AuthProvider = ({ children }) => {
   // 유저 정보 가져오는 함수
   const fetchUser = async (token) => {
     try {
-      const response = await axios.get("http://localhost:5001/api/user", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "http://localhost:5001/api/mypage/user",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setUser(response.data); // 서버에서 받은 유저 정보를 상태에 저장
       setLoading(false); // 유저 정보 가져오면 로딩 종료
     } catch (error) {
