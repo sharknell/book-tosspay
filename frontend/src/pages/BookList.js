@@ -130,9 +130,7 @@ const BookList = () => {
             const cleanIsbn = book.isbn.split(" ")[0]; // 공백을 기준으로 첫 번째 값만 추출
             return (
               <li key={cleanIsbn}>
-                <Link
-                  to={`/books-list/detail/${encodeURIComponent(cleanIsbn)}`}
-                >
+                <Link to={`/books-list/${encodeURIComponent(cleanIsbn)}`}>
                   <BookItem book={book} user={user} />
                 </Link>
               </li>

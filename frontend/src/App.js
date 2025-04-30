@@ -62,7 +62,7 @@ function App() {
           }
         />
         <Route path="/books-list" element={<BooksList />} />
-        <Route path="/books-list/detail/:isbn" element={<BookDetail />} />
+        <Route path="/books-list/:isbn" element={<BookDetail />} />
         <Route
           path="/payment/success"
           element={

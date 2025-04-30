@@ -48,7 +48,7 @@ const BookItem = ({ book }) => {
           <div className="button-group">
             <button
               className="rent-button"
-              onClick={() => navigate("/book-detail", { state: { book } })}
+              onClick={() => navigate("/books-list", { state: { book } })}
             >
               자세히 보기
             </button>
