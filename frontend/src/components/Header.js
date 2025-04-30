@@ -42,49 +42,51 @@ const Header = () => {
   return (
     <header className="header">
       <ToastContainer position="top-center" autoClose={2000} theme="colored" />
-      <div className="logo">
-        <Link to="/" className="header-title">
-          <h1 className="header-title-style">Book Rental</h1>
-        </Link>
-      </div>
-      <nav className="nav-links">
-        <ul>
-          <li>
-            <Link to="/books-list" className="link">
-              도서 목록
-            </Link>
-          </li>
-          {currentUser ? (
-            <>
-              <li>
-                <span className="welcome">
-                  <Link to="/profile" className="link">
-                    {currentUser.username}
+      <div className="header-container">
+        <div className="logo">
+          <Link to="/" className="header-title">
+            <h1 className="header-title-style">Book Rental</h1>
+          </Link>
+        </div>
+        <nav className="nav-links">
+          <ul>
+            <li>
+              <Link to="/books-list" className="link">
+                도서 목록
+              </Link>
+            </li>
+            {currentUser ? (
+              <>
+                <li>
+                  <span className="welcome">
+                    <Link to="/profile" className="link">
+                      {currentUser.username}
+                    </Link>
+                  </span>
+                </li>
+                <li>
+                  <button className="logout-btn" onClick={handleLogout}>
+                    로그아웃
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link to="/login" className="link">
+                    로그인
                   </Link>
-                </span>
-              </li>
-              <li>
-                <button className="logout-btn" onClick={handleLogout}>
-                  로그아웃
-                </button>
-              </li>
-            </>
-          ) : (
-            <>
-              <li>
-                <Link to="/login" className="link">
-                  로그인
-                </Link>
-              </li>
-              <li>
-                <Link to="/register" className="link register-btn">
-                  회원가입
-                </Link>
-              </li>
-            </>
-          )}
-        </ul>
-      </nav>
+                </li>
+                <li>
+                  <Link to="/register" className="link register-btn">
+                    회원가입
+                  </Link>
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
+      </div>
     </header>
   );
 };

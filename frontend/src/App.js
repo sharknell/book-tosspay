@@ -11,6 +11,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import BooksList from "./pages/BookList";
 import BookDetail from "./pages/BookDetail";
+import PaymentSuccess from "./pages/payment/PaymentSuccess";
+import PaymentFail from "./pages/payment/PaymentFail";
+
 import Profile from "./pages/Profile";
 import { useAuth } from "./context/authContext";
 
@@ -59,8 +62,23 @@ function App() {
           }
         />
         <Route path="/books-list" element={<BooksList />} />
-        <Route path="/books-list/detail/:isbn" element={<BookDetail />} />{" "}
-        {/* 🔥 수정된 부분 */}
+        <Route path="/books-list/detail/:isbn" element={<BookDetail />} />
+        <Route
+          path="/payment/success"
+          element={
+            <ProtectedRoute>
+              <PaymentSuccess />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment/fail"
+          element={
+            <ProtectedRoute>
+              <PaymentFail />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/profile"
           element={

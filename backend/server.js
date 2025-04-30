@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // jwt 모듈 추가
 const bookRoutes = require("./src/routes/bookRoutes");
 const rentalsRoutes = require("./src/routes/rentalsRoutes");
+const paymentRoutes = require("./src/routes/payment");
 const { authenticateToken } = require("./src/middleware/authMiddleware");
 const { initializeBooks } = require("./src/services/bookService");
 
@@ -147,6 +148,8 @@ app.get("/api/user", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "서버 오류" });
   }
 });
+
+app.use("/toss-pay", paymentRoutes); // 결제 라우트 추가
 
 // 메인 라우트 - 서버 정상 실행 확인
 app.get("/", async (req, res) => {

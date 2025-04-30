@@ -82,8 +82,6 @@ const BookList = () => {
   return (
     <div className="container">
       <h1>도서 목록</h1>
-
-      {/* 검색 폼 */}
       <form className="search-form" onSubmit={handleSearchSubmit}>
         <input
           type="text"

@@ -35,7 +35,6 @@ const fetchAllBooks = async () => {
       if (uniqueBooks.length === 0) break; // 모두 중복이면 종료
 
       allBooks = [...allBooks, ...uniqueBooks];
-      console.log(`📖 페이지 ${page}에서 ${uniqueBooks.length}권 추가됨.`);
       page++;
     }
   } catch (error) {

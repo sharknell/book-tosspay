@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaBookmark, FaRegBookmark } from "react-icons/fa";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, Nav } from "react-day-picker";
 import { format, addDays } from "date-fns";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBookDetail } from "../redux/slices/bookSlice";

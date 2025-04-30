@@ -19,6 +19,7 @@
 .book-item-container,
 .error-container,
 .profile-container,
+.header-container,
 .store {
   max-width: 400px;
   margin-left: auto;

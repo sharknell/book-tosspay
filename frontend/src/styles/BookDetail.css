@@ -9,6 +9,21 @@
   font-family: "Arial", sans-serif;
   transition: all 0.3s ease;
 }
+/* BookDetail.css 또는 별도 CSS */
+.payment-result-container {
+  text-align: center;
+  margin-top: 80px;
+}
+
+.payment-result-container h2 {
+  margin: 20px 0;
+}
+
+.back-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+}
 
 .back-button {
   background: #007bff;
