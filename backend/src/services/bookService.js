@@ -7,8 +7,8 @@ const KAKAO_API_KEY = process.env.KAKAO_API_KEY;
 const fetchAllBooks = async () => {
   let allBooks = [];
   let page = 1;
-  const size = 50; // 카카오 API는 최대 50개씩 요청 가능
-  const isbnSet = new Set(); // ISBN 중복 방지용
+  const size = 50;
+  const isbnSet = new Set();
 
   try {
     while (true) {
@@ -21,18 +21,19 @@ const fetchAllBooks = async () => {
       );
 
       const books = response.data.documents || [];
-      if (books.length === 0) break; // 더 이상 데이터가 없으면 종료
+      if (books.length === 0) break;
 
-      // 중복 ISBN 필터링
       const uniqueBooks = books.filter((book) => {
-        if (!isbnSet.has(book.isbn)) {
-          isbnSet.add(book.isbn);
+        const cleanedIsbn = book.isbn ? book.isbn.trim() : "";
+        if (!isbnSet.has(cleanedIsbn)) {
+          isbnSet.add(cleanedIsbn);
+          book.isbn = cleanedIsbn; // 책 객체 내부도 정제
           return true;
         }
         return false;
       });
 
-      if (uniqueBooks.length === 0) break; // 모두 중복이면 종료
+      if (uniqueBooks.length === 0) break;
 
       allBooks = [...allBooks, ...uniqueBooks];
       page++;
@@ -44,7 +45,6 @@ const fetchAllBooks = async () => {
   return allBooks;
 };
 
-// 📌 데이터베이스에 모든 도서 저장 (중복 방지)
 const initializeBooks = async () => {
   try {
     console.log("⏳ 카카오 API에서 도서 목록을 불러오는 중...");
@@ -67,17 +67,23 @@ const initializeBooks = async () => {
   }
 };
 
-// 📌 검색 기능 (카카오 API에서 검색)
 const searchBooks = async (query) => {
   try {
-    const response = await axios.get("https://dapi.kakao.com/v3/search/book", {
-      headers: { Authorization: `KakaoAK ${KAKAO_API_KEY}` },
-      params: { query, size: 10 },
-    });
-
-    return response.data.documents || [];
+    const sql = `
+      SELECT id, isbn, title, author, publisher, cover_image AS thumbnail, published_date AS datetime
+      FROM books
+      WHERE title LIKE ? OR author LIKE ? OR publisher LIKE ?
+      ORDER BY id DESC
+      LIMIT 50
+    `;
+    const [rows] = await db.execute(sql, [
+      `%${query}%`,
+      `%${query}%`,
+      `%${query}%`,
+    ]);
+    return rows;
   } catch (error) {
-    console.error("❌ 도서 검색 오류:", error.message);
+    console.error("❌ DB 검색 오류:", error.message);
     return [];
   }
 };
@@ -93,30 +99,27 @@ const saveBookToDB = async (book) => {
       thumbnail: cover_image,
     } = book;
 
-    // console.log(`📝 저장 시도: ${title} (${isbn})`); // 저장 시도 로그
+    const cleanedIsbn = isbn ? isbn.trim() : null;
 
-    // 중복 체크
     const [existingBook] = await db.query(
       "SELECT id FROM books WHERE isbn = ? OR (title = ? AND publisher = ?)",
-      [isbn, title, publisher]
+      [cleanedIsbn, title, publisher]
     );
 
     if (existingBook.length === 0) {
-      const result = await db.query(
+      await db.query(
         "INSERT INTO books (title, author, publisher, published_date, isbn, cover_image) VALUES (?, ?, ?, ?, ?, ?)",
         [
           title,
           authors.join(", "),
           publisher,
           published_date,
-          isbn,
+          cleanedIsbn,
           cover_image,
         ]
       );
-      // console.log(`✅ 저장 완료: ${title} (ID: ${result.insertId})`);
       return true;
     } else {
-      // console.log(`⚠️ 이미 존재하는 책: ${title}`);
       return false;
     }
   } catch (error) {

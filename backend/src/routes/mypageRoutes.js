@@ -30,7 +30,7 @@ router.get("/rentals/history/:userId", async (req, res) => {
       SELECT
         order_id,
         title,
-        isbn,
+      book_id,
         rental_start,
         rental_end,
         price,

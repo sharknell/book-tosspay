@@ -5,8 +5,8 @@ const API_URL = "http://localhost:5001/api/books";
 // 📌 도서 상세 정보 가져오기 (비동기 처리)
 export const fetchBookDetail = createAsyncThunk(
   "book/fetchBookDetail",
-  async (isbn) => {
-    const response = await fetch(`${API_URL}/books/${isbn}`);
+  async (id) => {
+    const response = await fetch(`${API_URL}/books/${id}`);
     if (!response.ok) throw new Error("책 정보를 불러올 수 없습니다.");
     return await response.json();
   }

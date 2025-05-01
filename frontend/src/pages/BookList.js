@@ -10,7 +10,7 @@ const BookList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [query, setQuery] = useState("인기 도서");
+  const [query, setQuery] = useState("art");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("popularity");
   const [page, setPage] = useState(1);
@@ -78,6 +78,7 @@ const BookList = () => {
 
   const startIndex = (page - 1) * booksPerPage;
   const displayedBooks = books.slice(startIndex, startIndex + booksPerPage);
+  console.log("displayedBooks:", displayedBooks[0]); // 디버깅용
 
   return (
     <div className="container">
@@ -125,12 +126,10 @@ const BookList = () => {
       {/* 도서 목록 */}
       <ul>
         {displayedBooks.length > 0 ? (
-          displayedBooks.map((book) => {
-            // ISBN이 여러 개로 구성된 경우 첫 번째 값만 사용하도록 변환
-            const cleanIsbn = book.isbn.split(" ")[0]; // 공백을 기준으로 첫 번째 값만 추출
+          displayedBooks.map((book, i) => {
             return (
-              <li key={cleanIsbn}>
-                <Link to={`/books-list/${encodeURIComponent(cleanIsbn)}`}>
+              <li key={i}>
+                <Link to={`/books-list/${book.id}`}>
                   <BookItem book={book} user={user} />
                 </Link>
               </li>
@@ -157,5 +156,4 @@ const BookList = () => {
     </div>
   );
 };
-
 export default BookList;

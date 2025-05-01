@@ -30,7 +30,6 @@ const searchBooks = async (query) => {
   }
 };
 
-// 📂 데이터베이스에 저장하는 함수
 const saveBookToDB = async (book) => {
   try {
     const {
@@ -42,10 +41,12 @@ const saveBookToDB = async (book) => {
       thumbnail: cover_image,
     } = book;
 
+    const cleanedIsbn = isbn ? isbn.trim() : null;
+
     // 🔥 중복 체크 (ISBN 기준, 없으면 제목 + 출판사 기준)
     const [existingBook] = await db.query(
       "SELECT id FROM books WHERE isbn = ? OR (title = ? AND publisher = ?)",
-      [isbn, title, publisher]
+      [cleanedIsbn, title, publisher]
     );
 
     if (existingBook.length === 0) {
@@ -55,12 +56,12 @@ const saveBookToDB = async (book) => {
         `INSERT INTO books (kakao_id, title, author, publisher, published_date, isbn, cover_image) 
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
-          isbn || null,
+          cleanedIsbn || null,
           title,
           authors.join(", "), // 🔥 배열을 문자열로 변환
           publisher,
-          datetime ? datetime.split("T")[0] : null, // 🔥 YYYY-MM-DD 변환
-          isbn,
+          datetime ? datetime.split("T")[0] : null,
+          cleanedIsbn,
           cover_image,
         ]
       );

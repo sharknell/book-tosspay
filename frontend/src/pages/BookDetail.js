@@ -19,7 +19,7 @@ import "react-day-picker/dist/style.css";
 import "../styles/BookDetail.css";
 
 const BookDetail = () => {
-  const { isbn } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useAuth();
@@ -31,11 +31,11 @@ const BookDetail = () => {
   const MAX_RENT_DAYS = 14;
 
   useEffect(() => {
-    dispatch(fetchBookDetail(isbn));
+    dispatch(fetchBookDetail(id));
     if (user?.id) {
-      dispatch(fetchBookmarkStatus({ userId: user.id, isbn }));
+      dispatch(fetchBookmarkStatus({ userId: user.id, id }));
     }
-  }, [dispatch, isbn, user]);
+  }, [dispatch, id, user]);
 
   const handleRequireLogin = () => {
     toast.warn(
@@ -52,7 +52,7 @@ const BookDetail = () => {
       handleRequireLogin();
       return;
     }
-    dispatch(toggleBookmark({ userId: user.id, isbn, isBookmarked }));
+    dispatch(toggleBookmark({ userId: user.id, id, isBookmarked }));
     toast.success(
       isBookmarked
         ? "📕 북마크가 제거되었습니다."
@@ -83,7 +83,7 @@ const BookDetail = () => {
         email: user.email,
         title: book.title,
         price,
-        isbn: book.isbn,
+        bookId: book.id, // ← 여기!
         from: format(selectedRange.from, "yyyy-MM-dd"),
         to: format(selectedRange.to, "yyyy-MM-dd"),
         orderId: `order_${Date.now()}`,

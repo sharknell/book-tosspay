@@ -12,6 +12,7 @@ router.get("/search", async (req, res) => {
 
     const books = await searchBooks(query);
     res.json(books);
+    console.log("📚 검색 결과:", books); // 검색 결과 확인
   } catch (error) {
     console.error("❌ 검색 API 오류:", error.message);
     res.status(500).json({ error: "검색 중 오류 발생" });
@@ -19,15 +20,14 @@ router.get("/search", async (req, res) => {
 });
 
 // 📌 2️⃣ 도서 상세 정보 API
-router.get("/books/:isbn", async (req, res) => {
-  const { isbn } = req.params;
-  const decodedIsbn = decodeURIComponent(isbn); // URL 디코딩
+router.get("/books/:id", async (req, res) => {
+  const { id } = req.params;
 
-  console.log(`📌 디코딩된 ISBN: ${decodedIsbn}`); // 디코딩된 ISBN 확인
+  console.log(`📌 요청된 도서 ID: ${id}`); // 요청된 ID 확인
 
   try {
-    const query = `SELECT * FROM books WHERE isbn = ? LIMIT 1`;
-    const [rows] = await db.execute(query, [decodedIsbn]);
+    const query = `SELECT * FROM books WHERE id = ? LIMIT 1`;
+    const [rows] = await db.execute(query, [id]);
 
     if (rows.length === 0) {
       return res.status(404).json({ error: "책 정보를 찾을 수 없습니다." });
@@ -42,11 +42,11 @@ router.get("/books/:isbn", async (req, res) => {
 
 // 📌 3️⃣ 북마크 추가 API
 router.post("/bookmarks", async (req, res) => {
-  let { userId, isbn } = req.body;
-  if (!userId || !isbn) {
+  let { userId, id } = req.body;
+  if (!userId || !id) {
     return res
       .status(400)
-      .json({ error: "유효한 사용자 ID와 ISBN이 필요합니다." });
+      .json({ error: "유효한 사용자 ID와 도서 ID 가 필요합니다." });
   }
 
   userId = Number(userId);
@@ -55,8 +55,8 @@ router.post("/bookmarks", async (req, res) => {
   }
 
   try {
-    const query = "INSERT INTO bookmarks (user_id, isbn) VALUES (?, ?)";
-    await db.execute(query, [userId, isbn]);
+    const query = "INSERT INTO bookmarks (user_id, book_id) VALUES (?, ?)";
+    await db.execute(query, [userId, id]);
     res.status(201).json({ message: "북마크가 추가되었습니다." });
   } catch (error) {
     console.error("❌ 북마크 추가 오류:", error);
@@ -66,11 +66,11 @@ router.post("/bookmarks", async (req, res) => {
 
 // 📌 4️⃣ 북마크 삭제 API
 router.delete("/bookmarks", async (req, res) => {
-  let { userId, isbn } = req.body;
-  if (!userId || !isbn) {
+  let { userId, id } = req.body;
+  if (!userId || !id) {
     return res
       .status(400)
-      .json({ error: "유효한 사용자 ID와 ISBN이 필요합니다." });
+      .json({ error: "유효한 사용자 ID와 도서 ID가 필요합니다." });
   }
 
   userId = Number(userId);
@@ -79,8 +79,8 @@ router.delete("/bookmarks", async (req, res) => {
   }
 
   try {
-    const query = "DELETE FROM bookmarks WHERE user_id = ? AND isbn = ?";
-    await db.execute(query, [userId, isbn]);
+    const query = "DELETE FROM bookmarks WHERE user_id = ? AND book_id = ?";
+    await db.execute(query, [userId, id]);
     res.json({ message: "북마크가 삭제되었습니다." });
   } catch (error) {
     console.error("❌ 북마크 삭제 오류:", error);
@@ -89,8 +89,8 @@ router.delete("/bookmarks", async (req, res) => {
 });
 
 // 📌 5️⃣ 북마크 상태 조회 API
-router.get("/bookmarks/:userId/:isbn", async (req, res) => {
-  let { userId, isbn } = req.params;
+router.get("/bookmarks/:userId/:id", async (req, res) => {
+  let { userId, id } = req.params;
   userId = Number(userId);
 
   if (isNaN(userId)) {
@@ -98,8 +98,8 @@ router.get("/bookmarks/:userId/:isbn", async (req, res) => {
   }
 
   try {
-    const query = "SELECT * FROM bookmarks WHERE user_id = ? AND isbn = ?";
-    const [rows] = await db.execute(query, [userId, isbn]);
+    const query = "SELECT * FROM bookmarks WHERE user_id = ? AND book_id = ?";
+    const [rows] = await db.execute(query, [userId, id]);
     res.json({ isBookmarked: rows.length > 0 });
   } catch (error) {
     console.error("❌ 북마크 상태 조회 오류:", error);

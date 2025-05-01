@@ -2,17 +2,18 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 
-// POST /payment/success
 router.post("/success", async (req, res) => {
-  const { userId, isbn, title, price, from, to, orderId } = req.body;
+  let { userId, bookId, title, price, from, to, orderId } = req.body;
+  console.log("💬 요청 본문:", req.body);
 
-  if (!userId || !isbn || !from || !to || !orderId) {
+  // 필수 필드 확인
+  if (!userId || !bookId || !from || !to || !orderId) {
     return res.status(400).json({ success: false, message: "필수 정보 누락" });
   }
 
   try {
     // 주문 ID 중복 체크
-    const existingOrder = await db.query(
+    const [existingOrder] = await db.query(
       "SELECT * FROM rentals WHERE order_id = ?",
       [orderId]
     );
@@ -25,12 +26,12 @@ router.post("/success", async (req, res) => {
 
     // 대여 정보 저장
     await db.query(
-      "INSERT INTO rentals (user_id, isbn, title, price, rental_start, rental_end, returned, order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [userId, isbn, title, price, from, to, false, orderId]
+      "INSERT INTO rentals (user_id, book_id, title, price, rental_start, rental_end, returned, order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [userId, bookId, title, price, from, to, false, orderId]
     );
 
     console.log(
-      `✅ 대여 정보 저장 완료 - userId: ${userId}, isbn: ${isbn}, title: ${title}, price: ${price}, from: ${from}, to: ${to}, orderId: ${orderId}`
+      `✅ 대여 정보 저장 완료 - userId: ${userId}, bookId: ${bookId}, title: ${title}, price: ${price}, from: ${from}, to: ${to}, orderId: ${orderId}`
     );
     res.json({ success: true, message: "대여 저장 완료" });
   } catch (error) {
