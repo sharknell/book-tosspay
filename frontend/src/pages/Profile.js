@@ -1,3 +1,4 @@
+// Profile.js
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/authContext";
 import axios from "axios";
@@ -13,24 +14,29 @@ const returnSpots = [
 
 const Profile = () => {
   const [user, setUser] = useState(null);
+  const [bookmarks, setBookmarks] = useState([]);
   const [rentalHistory, setRentalHistory] = useState([]);
   const [selectedRental, setSelectedRental] = useState(null);
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [mapLoading, setMapLoading] = useState(false);
   const mapRef = useRef(null);
   const { accessToken, refreshAccessToken } = useAuth();
 
-  // 사용자 정보 불러오기
   useEffect(() => {
-    const fetchUser = async () => {
-      if (!accessToken) return;
-
+    if (!accessToken) return;
+    const fetchUserData = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/api/mypage/user", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        setUser(res.data);
-        fetchRentalHistory(res.data.id);
+        const { data } = await axios.get(
+          "http://localhost:5001/api/mypage/user",
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+        setUser(data);
+        fetchRentalHistory(data.id);
+        fetchBookmarks(data.id);
+        toast.success("사용자 정보 불러오기 성공");
       } catch (error) {
         if (error.response?.status === 403) {
           toast.warning("⏳ 토큰 갱신 중...");
@@ -40,43 +46,53 @@ const Profile = () => {
         }
       }
     };
-
-    fetchUser();
+    fetchUserData();
   }, [accessToken, refreshAccessToken]);
 
-  // 대여 내역 불러오기
+  const fetchBookmarks = async (userId) => {
+    try {
+      const { data } = await axios.get(
+        `http://localhost:5001/api/books/bookmarks/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      setBookmarks(data);
+    } catch (err) {
+      toast.error("북마크 불러오기 실패");
+    }
+  };
+
   const fetchRentalHistory = async (userId) => {
     try {
-      const res = await axios.get(
+      const { data } = await axios.get(
         `http://localhost:5001/api/mypage/rentals/history/${userId}`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
-      console.log("대여 내역:", res.data);
-      setRentalHistory(res.data);
-    } catch (error) {
+      setRentalHistory(data);
+    } catch (err) {
       toast.error("대여 내역 불러오기 실패");
-      console.error(error);
     }
   };
 
-  // Kakao 지도 불러오기
   useEffect(() => {
-    if (showModal) {
-      const loadMap = () => {
-        if (window.kakao && window.kakao.maps) {
-          initMap();
-        } else {
-          const script = document.createElement("script");
-          script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_MAP_API_KEY}&autoload=false`;
-          script.onload = () => {
-            window.kakao.maps.load(() => initMap());
-          };
-          document.head.appendChild(script);
-        }
+    if (!showModal) return;
+    const existingScript = document.querySelector(
+      'script[src*="kakao.com/v2/maps/sdk.js"]'
+    );
+    setMapLoading(true);
+
+    if (window.kakao && window.kakao.maps) {
+      initMap();
+    } else if (!existingScript) {
+      const script = document.createElement("script");
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_MAP_API_KEY}&autoload=false`;
+      script.onload = () => {
+        window.kakao.maps.load(initMap);
       };
-      loadMap();
+      document.head.appendChild(script);
     }
   }, [showModal]);
 
@@ -98,10 +114,14 @@ const Profile = () => {
 
       kakao.maps.event.addListener(marker, "click", () => {
         setSelectedSpot(spot);
-        toast.info(`${spot.name} 위치 선택됨`);
+        toast.info(`${spot.name} 선택됨`);
       });
     });
+    setMapLoading(false);
   };
+
+  const isReturnCompleted = (rental) =>
+    returnSpots.some((spot) => spot.name === rental.returned);
 
   const handleReturnClick = (rental) => {
     setSelectedRental(rental);
@@ -125,20 +145,14 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
-      toast.success(`📚 ${selectedSpot.name}에서 반납 완료!`);
+      toast.success(`${selectedSpot.name} 반납 완료!`);
       setShowModal(false);
       setSelectedRental(null);
       setSelectedSpot(null);
-      fetchRentalHistory(user.id); // 갱신
-    } catch (error) {
-      console.error("❌ 반납 처리 실패:", error);
+      fetchRentalHistory(user.id);
+    } catch (err) {
       toast.error("반납 처리 실패");
     }
-  };
-
-  // 대여 내역 렌더링
-  const isReturnCompleted = (rental) => {
-    return returnSpots.some((spot) => spot.name === rental.returned);
   };
 
   if (!user)
@@ -156,6 +170,32 @@ const Profile = () => {
         <p>
           <strong>이메일:</strong> {user.email}
         </p>
+      </div>
+
+      <div className="bookmark-section">
+        <h2>⭐ 내가 북마크한 도서</h2>
+        {bookmarks.length === 0 ? (
+          <p>북마크한 도서가 없습니다.</p>
+        ) : (
+          <ul className="bookmark-list">
+            {bookmarks.map((book) => (
+              <li key={book.id} className="bookmark-item">
+                <p>
+                  <strong>도서명:</strong> {book.title}
+                </p>
+                <p>
+                  <strong>저자:</strong> {book.author}
+                </p>
+                <p>
+                  <strong>출판사:</strong> {book.publisher}
+                </p>
+                <p>
+                  <strong>ISBN:</strong> {book.isbn}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="rental-history">
@@ -183,7 +223,7 @@ const Profile = () => {
                   onClick={() => handleReturnClick(rental)}
                   disabled={isReturnCompleted(rental)}
                 >
-                  {isReturnCompleted(rental) ? "반납 완료" : "반납하기"}
+                  {isReturnCompleted(rental) ? "✅ 반납 완료" : "반납하기"}
                 </button>
               </li>
             ))}
@@ -195,15 +235,8 @@ const Profile = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>📍 반납 위치 선택</h3>
-            <div
-              ref={mapRef}
-              style={{
-                width: "100%",
-                height: "400px",
-                marginBottom: "1rem",
-                borderRadius: "8px",
-              }}
-            />
+            {mapLoading ? <p>지도를 불러오는 중...</p> : null}
+            <div ref={mapRef} className="map-view" />
             {selectedSpot && (
               <p>
                 선택한 위치: <strong>{selectedSpot.name}</strong>

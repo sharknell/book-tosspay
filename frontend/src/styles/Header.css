@@ -1,7 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Oswald);
 
 .header {
-  max-width: 400px;
   margin: 0 auto;
   background-color: #fff;
   display: flex;

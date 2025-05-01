@@ -107,4 +107,26 @@ router.get("/bookmarks/:userId/:id", async (req, res) => {
   }
 });
 
+// 📌 6️⃣ 특정 사용자의 북마크 목록 조회 API
+router.get("/bookmarks/:userId", async (req, res) => {
+  const { userId } = req.params;
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: "userId는 숫자여야 합니다." });
+  }
+
+  try {
+    const query = `
+      SELECT b.* 
+      FROM bookmarks bm
+      JOIN books b ON bm.book_id = b.id
+      WHERE bm.user_id = ?
+    `;
+    const [rows] = await db.execute(query, [userId]);
+    res.json(rows);
+  } catch (error) {
+    console.error("❌ 북마크 목록 조회 오류:", error);
+    res.status(500).json({ error: "북마크 목록 조회 중 오류 발생" });
+  }
+});
+
 module.exports = router;

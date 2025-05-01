@@ -10,43 +10,29 @@ const BookList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [query, setQuery] = useState("art");
-  const [category, setCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("popularity");
+  const [query, setQuery] = useState(""); // 검색어 기본값은 빈 문자열
   const [page, setPage] = useState(1);
   const booksPerPage = 5;
 
   useEffect(() => {
-    fetchBooks(query, category, sortBy, page);
-  }, [query, category, sortBy, page]);
+    fetchBooks(query, page); // 검색어만으로 도서 리스트 로드
+  }, [query, page]);
 
-  const fetchBooks = (
-    searchQuery,
-    searchCategory,
-    searchSortBy,
-    currentPage
-  ) => {
+  const fetchBooks = (searchQuery, currentPage) => {
     setLoading(true);
-    getBooks(
-      searchQuery,
-      searchCategory,
-      searchSortBy,
-      currentPage,
-      booksPerPage
-    )
+    getBooks(searchQuery, currentPage, booksPerPage) // 카테고리, 인기순 정렬 없이 기본 검색어만
       .then((data) => {
-        console.log("Fetched data:", data); // 데이터 확인
         if (Array.isArray(data) && data.length > 0) {
-          setBooks(data); // 정상적인 데이터일 때
+          setBooks(data);
         } else {
-          setBooks([]); // 빈 배열로 처리
+          setBooks([]);
         }
-        setLoading(false); // 로딩 끝
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching books:", error);
         setError("도서 데이터를 가져오는 데 실패했습니다.");
-        setLoading(false); // 로딩 끝
+        setLoading(false);
       });
   };
 
@@ -54,18 +40,10 @@ const BookList = () => {
     setQuery(e.target.value);
   };
 
-  const handleCategoryChange = (e) => {
-    setCategory(e.target.value);
-  };
-
-  const handleSortChange = (e) => {
-    setSortBy(e.target.value);
-  };
-
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    setPage(1);
-    fetchBooks(query, category, sortBy, 1);
+    setPage(1); // 페이지를 첫 페이지로 리셋
+    fetchBooks(query, 1);
   };
 
   const handleNextPage = () => {
@@ -78,7 +56,6 @@ const BookList = () => {
 
   const startIndex = (page - 1) * booksPerPage;
   const displayedBooks = books.slice(startIndex, startIndex + booksPerPage);
-  console.log("displayedBooks:", displayedBooks[0]); // 디버깅용
 
   return (
     <div className="container">
@@ -95,29 +72,6 @@ const BookList = () => {
           검색
         </button>
       </form>
-
-      {/* 카테고리와 정렬 필터 */}
-      <div className="filters">
-        <select
-          value={category}
-          onChange={handleCategoryChange}
-          className="filter-select"
-        >
-          <option value="all">전체</option>
-          <option value="fiction">소설</option>
-          <option value="non-fiction">논픽션</option>
-        </select>
-
-        <select
-          value={sortBy}
-          onChange={handleSortChange}
-          className="filter-select"
-        >
-          <option value="popularity">인기순</option>
-          <option value="rating">별점순</option>
-          <option value="newest">최신순</option>
-        </select>
-      </div>
 
       {/* 로딩 상태 */}
       {loading && <div>로딩 중...</div>}
@@ -156,4 +110,5 @@ const BookList = () => {
     </div>
   );
 };
+
 export default BookList;
