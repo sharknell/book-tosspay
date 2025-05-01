@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { registerUser } from "../services/accountService"; // API 요청 함수
+import { useNavigate } from "react-router-dom"; // useNavigate 훅 import
 import "../styles/Register.css"; // CSS 파일 import
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate(); // useNavigate 훅 사용
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,6 +18,12 @@ const Register = () => {
     try {
       const data = await registerUser(email, username, password);
       setMessage(data.message);
+
+      // 회원가입 성공 후 5초 뒤에 로그인 페이지로 이동
+      setTimeout(() => {
+        toast.success("회원가입 성공! 5초 후 로그인 페이지로 이동합니다.");
+        navigate("/login"); // 로그인 페이지로 이동
+      }, 5000); // 5000ms (5초)
     } catch (error) {
       setMessage(error.message);
     }
