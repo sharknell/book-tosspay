@@ -26,7 +26,7 @@ router.post("/success", async (req, res) => {
 
     // 대여 정보 저장
     await db.query(
-      "INSERT INTO rentals (user_id, book_id, title, price, rental_start, rental_end, returned, order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO rentals (user_id, book_id, title, price, rental_start, rental_end,  returned, order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [userId, bookId, title, price, from, to, false, orderId]
     );
 

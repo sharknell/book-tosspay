@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { DayPicker } from "react-day-picker";
@@ -13,10 +13,11 @@ import { setRentalPeriod } from "../redux/slices/rentalSlice";
 import { toast, ToastContainer } from "react-toastify";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { useAuth } from "../context/authContext";
+import DaumPostcode from "react-daum-postcode"; // 추가된 부분
 
 import "react-toastify/dist/ReactToastify.css";
 import "react-day-picker/dist/style.css";
-import "../styles/BookDetail.css";
+import "../styles/BookDetail.css"; // 기존 스타일
 
 const BookDetail = () => {
   const { id } = useParams();
@@ -27,6 +28,15 @@ const BookDetail = () => {
   const { book, loading, error } = useSelector((state) => state.book);
   const { isBookmarked } = useSelector((state) => state.bookmark);
   const { selectedRange, price } = useSelector((state) => state.rental);
+
+  const [name, setName] = useState(user?.name || ""); // 이름 상태
+  const [phone, setPhone] = useState(user?.phone || ""); // 전화번호 상태
+  const [address, setAddress] = useState(user?.address || ""); // 주소 상태
+  const [detailAddress, setDetailAddress] = useState(""); // 상세 주소 상태
+  const [zipcode, setZipcode] = useState(""); // 우편번호 상태
+  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 열림/닫힘 상태
+  const [isPostcodeModalOpen, setIsPostcodeModalOpen] = useState(false); // 주소 검색 모달 열림/닫힘 상태
+  const [isUserInfoModalOpen, setIsUserInfoModalOpen] = useState(false); // 사용자 정보 모달 열림/닫힘 상태
 
   const MAX_RENT_DAYS = 31;
 
@@ -52,22 +62,27 @@ const BookDetail = () => {
   };
 
   const handleDateSelection = (range) => {
-    // range가 정의되지 않았을 경우를 처리
     if (!range || !range.from) {
       dispatch(setRentalPeriod({ from: null, to: null }));
       return;
     }
 
-    // 두 날짜가 동일한 경우, 'from'만 설정하고 'to'는 null로 설정
     if (range.from && range.to && range.from.getTime() === range.to.getTime()) {
       dispatch(setRentalPeriod({ from: range.from, to: null }));
     } else {
       dispatch(setRentalPeriod(range));
     }
+
+    // 종료일만 선택했을 때 사용자 정보 입력 모달 열기
+    if (range.to && !range.from) {
+      setIsUserInfoModalOpen(true); // 사용자 정보 입력 모달 열기
+    }
   };
 
   const handleRent = async () => {
     if (!user) {
+      console.log("User not logged in");
+      toast.warn("로그인 후 이용해주세요.");
       handleRequireLogin();
       return;
     }
@@ -83,6 +98,11 @@ const BookDetail = () => {
         from: format(selectedRange.from, "yyyy-MM-dd"),
         to: format(selectedRange.to, "yyyy-MM-dd"),
         orderId: `order_${Date.now()}`,
+        name,
+        phone,
+        address, // 기본 주소
+        detailAddress, // 상세 주소
+        zipcode, // 우편번호
       };
 
       try {
@@ -91,7 +111,7 @@ const BookDetail = () => {
           amount: rentalInfo.price,
           orderId: rentalInfo.orderId,
           orderName: `${rentalInfo.title} 대여`,
-          customerName: user.name || "홍길동",
+          customerName: name || "홍길동",
           successUrl: `${
             window.location.origin
           }/payment/success?info=${encodeURIComponent(
@@ -106,6 +126,24 @@ const BookDetail = () => {
     } else {
       toast.warning("대여 기간을 먼저 선택해주세요.");
     }
+  };
+
+  const handleInputChange = (setter) => (event) => {
+    setter(event.target.value);
+  };
+
+  const openPostcodeModal = () => {
+    setIsPostcodeModalOpen(true);
+  };
+
+  const closePostcodeModal = () => {
+    setIsPostcodeModalOpen(false);
+  };
+
+  const handleAddressSelect = (data) => {
+    setZipcode(data.zonecode); // 우편번호 저장
+    setAddress(data.address); // 기본 주소 상태에 저장
+    closePostcodeModal(); // 주소 검색 모달 닫기
   };
 
   if (loading)
@@ -160,13 +198,13 @@ const BookDetail = () => {
                   <>{book.price.toLocaleString()}원</>
                 )}
               </p>
-
               <p>
                 <strong>내용 : {book.contents || "정보 없음"}</strong>
               </p>
             </div>
           </div>
 
+          {/* 대여 기간 선택 */}
           <div className="date-picker-section">
             <p>
               <strong>대여 기간 선택 (최대 {MAX_RENT_DAYS}일):</strong>
@@ -204,27 +242,25 @@ const BookDetail = () => {
                       {Math.ceil(
                         (selectedRange.to - selectedRange.from) /
                           (1000 * 60 * 60 * 24)
-                      ) + 1}{" "}
+                      )}{" "}
                       일
                     </p>
                   </>
                 )}
-                <p>
-                  💰 <strong>대여 가격:</strong> {price.toLocaleString()}원
-                </p>
               </div>
             </div>
           </div>
 
-          <p className="book-price">대여 가격: {price.toLocaleString()}원</p>
+          {/* 결제 및 대여 버튼 */}
+          <div className="rental-info">
+            <p>
+              <strong>대여 금액:</strong> {price.toLocaleString()}원
+            </p>
 
-          <button
-            className="rent-button"
-            onClick={handleRent}
-            disabled={!selectedRange.from || !selectedRange.to}
-          >
-            대여하기 (결제)
-          </button>
+            <button onClick={handleRent} className="rent-button">
+              대여하기
+            </button>
+          </div>
         </>
       )}
     </div>

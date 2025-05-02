@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/Profile.css";
 import DaumPostcode from "react-daum-postcode";
+import UserInfo from "../components/profile/UserInfo";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -22,7 +23,12 @@ const Profile = () => {
   const [returnSpots, setReturnSpots] = useState([]);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [detailedAddress, setDetailedAddress] = useState("");
-  const [address, setAddress] = useState(""); // 기본 주소
+  const [phone, setPhone] = useState("");
+
+  const [zoneCode, setZoneCode] = useState("");
+  const [address, setAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
+
   useEffect(() => {
     const fetchReturnSpots = async () => {
       try {
@@ -62,22 +68,23 @@ const Profile = () => {
     fetchUserData();
   }, [accessToken, refreshAccessToken]);
 
-  const handleAddressSelect = async (data) => {
-    const selectedAddress = data.address;
-    setShowAddressModal(false);
-
-    // 주소와 상세주소를 함께 저장할 수 있도록
-    const addressWithDetail = `${selectedAddress} ${detailedAddress}`;
-
+  const handleSaveAddress = async () => {
+    const fullAddress = `${address} ${detailAddress}`;
     try {
       await axios.patch(
         "http://localhost:5001/api/mypage/user/address",
-        { address: addressWithDetail },
+        { address: fullAddress },
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
+      console.log("주소 저장 요청:", fullAddress);
+
       toast.success("주소가 성공적으로 저장되었습니다!");
+      setShowAddressModal(false);
+      setAddress("");
+      setDetailAddress("");
+      console.log("주소 저장 성공:", fullAddress);
       // 주소 반영 위해 유저 정보 다시 불러오기
       const { data: updatedUser } = await axios.get(
         "http://localhost:5001/api/mypage/user",
@@ -86,26 +93,13 @@ const Profile = () => {
         }
       );
       setUser(updatedUser);
-      console.log("주소 업데이트:", updatedUser);
     } catch (err) {
       toast.error("주소 저장 실패");
     }
   };
 
-  const handleAddressUpdate = async () => {
-    try {
-      await axios.patch(
-        "http://localhost:5001/api/mypage/user/address",
-        { address: user.address },
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      toast.success("주소가 저장되었습니다!");
-      console.log("주소 업데이트:", user.address);
-    } catch (error) {
-      toast.error("주소 저장 실패");
-    }
+  const handleCompleteAddress = (data) => {
+    setAddress(data.address);
   };
 
   const fetchBookmarks = async (userId) => {
@@ -192,6 +186,29 @@ const Profile = () => {
     setShowModal(true);
   };
 
+  const handleSavePhone = async () => {
+    try {
+      await axios.patch(
+        "http://localhost:5001/api/mypage/user/phone",
+        { phone },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      toast.success("전화번호가 저장되었습니다!");
+      const { data: updatedUser } = await axios.get(
+        "http://localhost:5001/api/mypage/user",
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      setUser(updatedUser);
+      setPhone("");
+    } catch (err) {
+      toast.error("전화번호 저장 실패");
+    }
+  };
+
   const handleConfirmReturn = async () => {
     if (!selectedSpot || !selectedRental) {
       toast.warning("반납 위치를 선택해주세요.");
@@ -228,36 +245,22 @@ const Profile = () => {
       <h1 className="profile-title">내 프로필</h1>
 
       {/* 사용자 정보 섹션 */}
+      {/* 사용자 정보 섹션 */}
       <div className="profile-section">
-        <h2 onClick={handleShowUserInfo} style={{ cursor: "pointer" }}>
+        <h2
+          onClick={() => setShowUserInfo(!showUserInfo)}
+          style={{ cursor: "pointer" }}
+        >
           🙋 내 정보 {showUserInfo ? "▲" : "▼"}
         </h2>
         {showUserInfo && (
-          <div className="profile-info">
-            <p>
-              <strong>아이디:</strong> {user.username}
-            </p>
-            <p>
-              <strong>이메일:</strong> {user.email}
-            </p>
-            <p>
-              <strong>주소:</strong> {user.address || "주소 정보 없음"}
-            </p>
-            {/* 주소 추가 / 변경 버튼 */}
-            <button onClick={() => setShowAddressModal(true)}>
-              주소 추가 / 변경
-            </button>
-            {user.address && (
-              <div>
-                <input
-                  type="text"
-                  value={detailedAddress}
-                  onChange={(e) => setDetailedAddress(e.target.value)}
-                  placeholder="상세 주소를 입력해주세요."
-                />
-              </div>
-            )}
-          </div>
+          <UserInfo
+            user={user}
+            setUser={setUser}
+            setShowAddressModal={setShowAddressModal}
+            phone={phone}
+            setPhone={setPhone}
+          />
         )}
       </div>
 
@@ -361,30 +364,22 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      {/* 주소 입력 모달 */}
       {showAddressModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>📍 주소 검색</h3>
-            <DaumPostcode onComplete={handleAddressSelect} autoClose />
-
-            <div>
+            <DaumPostcode onComplete={handleCompleteAddress} />
+            <div className="address-input">
               <input
                 type="text"
-                value={address}
-                readOnly
-                placeholder="기본 주소"
-              />
-              <input
-                type="text"
-                value={detailedAddress}
-                onChange={(e) => setDetailedAddress(e.target.value)}
-                placeholder="상세 주소 입력"
+                value={detailAddress}
+                onChange={(e) => setDetailAddress(e.target.value)}
+                placeholder="상세 주소를 입력해주세요."
               />
             </div>
-            <div className="modal-buttons">
-              <button onClick={handleAddressUpdate}>저장</button>
-              <button onClick={() => setShowAddressModal(false)}>취소</button>
-            </div>
+            <button onClick={handleSaveAddress}>주소 저장</button>
+            <button onClick={() => setShowAddressModal(false)}>취소</button>
           </div>
         </div>
       )}
