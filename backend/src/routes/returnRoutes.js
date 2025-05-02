@@ -37,5 +37,29 @@ router.get("/spots", async (req, res) => {
     res.status(500).json({ message: "반납 위치 불러오기 실패" });
   }
 });
+// PUT /api/return - 반납 위치 수정
+router.put("/spots", async (req, res) => {
+  const { order_id, return_location } = req.body;
+
+  if (!order_id || !return_location) {
+    return res.status(400).json({ message: "필수 항목이 누락되었습니다." });
+  }
+
+  try {
+    // 반납 위치만 업데이트 (기존 반납 완료 후 수정 시)
+    await db.query(`UPDATE rentals SET returned = ? WHERE order_id = ?`, [
+      return_location,
+      order_id,
+    ]);
+
+    console.log(
+      `✅ 반납 위치 수정 - order_id: ${order_id}, return_location: ${return_location}`
+    );
+    res.status(200).json({ message: "반납 위치가 수정되었습니다." });
+  } catch (error) {
+    console.error("❌ 반납 위치 수정 오류:", error);
+    res.status(500).json({ message: "반납 위치 수정 실패" });
+  }
+});
 
 module.exports = router;

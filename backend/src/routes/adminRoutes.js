@@ -64,75 +64,78 @@ router.get("/users/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// 책 추가
-router.post("/books", authenticateToken, async (req, res) => {
-  const { title, author, category, price } = req.body;
+// 반납 위치 조회
+router.get("/spots", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM return_spots");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: "반납 위치 불러오기 실패" });
+  }
+});
+
+// 반납 위치 추가
+router.post("/spots", authenticateToken, async (req, res) => {
+  const { name, lat, lng } = req.body;
+  if (!name || !lat || !lng) {
+    return res.status(400).json({ message: "모든 필드를 채워주세요." });
+  }
+
+  try {
+    const result = await db.query(
+      "INSERT INTO return_spots (name, lat, lng) VALUES (?, ?, ?)",
+      [name, lat, lng]
+    );
+    res.status(201).json({ message: "반납 위치가 추가되었습니다." });
+  } catch (err) {
+    console.error("반납 위치 추가 실패:", err);
+    res.status(500).json({ message: "반납 위치 추가 실패" });
+  }
+});
+
+// 반납 위치 수정
+router.put("/spots/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { name, lat, lng } = req.body;
+
+  if (!name || !lat || !lng) {
+    return res.status(400).json({ message: "모든 필드를 채워주세요." });
+  }
+
   try {
     const [result] = await db.query(
-      "INSERT INTO books (title, author, category, price) VALUES (?, ?, ?, ?)",
-      [title, author, category, price]
+      "UPDATE return_spots SET name = ?, lat = ?, lng = ? WHERE id = ?",
+      [name, lat, lng, id]
     );
-    res.status(201).json({ message: "책이 추가되었습니다." });
-  } catch (error) {
-    console.error("책 추가 중 오류가 발생했습니다:", error);
-    res.status(500).json({ message: "책 추가 중 오류가 발생했습니다." });
-  }
-});
 
-// 책 수정
-router.put("/books/:id", authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  const { title, author, category, price } = req.body;
-  try {
-    const [result] = await db.query(
-      "UPDATE books SET title = ?, author = ?, category = ?, price = ? WHERE id = ?",
-      [title, author, category, price, id]
-    );
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "책을 수정할 수 없습니다." });
+      return res.status(404).json({ message: "반납 위치를 찾을 수 없습니다." });
     }
-    res.json({ message: "책이 수정되었습니다." });
-  } catch (error) {
-    console.error("책 수정 중 오류가 발생했습니다:", error);
-    res.status(500).json({ message: "책 수정 중 오류가 발생했습니다." });
+
+    res.json({ message: "반납 위치가 수정되었습니다." });
+  } catch (err) {
+    console.error("반납 위치 수정 실패:", err);
+    res.status(500).json({ message: "반납 위치 수정 실패" });
   }
 });
 
-// 책 삭제
-router.delete("/books/:id", authenticateToken, async (req, res) => {
+// 반납 위치 삭제
+router.delete("/spots/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
-  try {
-    const [result] = await db.query("DELETE FROM books WHERE id = ?", [id]);
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "책을 삭제할 수 없습니다." });
-    }
-    res.json({ message: "책이 삭제되었습니다." });
-  } catch (error) {
-    console.error("책 삭제 중 오류가 발생했습니다:", error);
-    res.status(500).json({ message: "책 삭제 중 오류가 발생했습니다." });
-  }
-});
 
-// 사용자 역할 변경
-router.put("/users/:id/role", authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  const { role } = req.body;
   try {
-    const [result] = await db.query("UPDATE users SET role = ? WHERE id = ?", [
-      role,
+    const [result] = await db.query("DELETE FROM return_spots WHERE id = ?", [
       id,
     ]);
+
     if (result.affectedRows === 0) {
-      return res
-        .status(404)
-        .json({ message: "사용자 역할을 변경할 수 없습니다." });
+      return res.status(404).json({ message: "반납 위치를 찾을 수 없습니다." });
     }
-    res.json({ message: "사용자 역할이 변경되었습니다." });
-  } catch (error) {
-    console.error("사용자 역할 변경 중 오류가 발생했습니다:", error);
-    res
-      .status(500)
-      .json({ message: "사용자 역할 변경 중 오류가 발생했습니다." });
+
+    res.json({ message: "반납 위치가 삭제되었습니다." });
+  } catch (err) {
+    console.error("반납 위치 삭제 실패:", err);
+    res.status(500).json({ message: "반납 위치 삭제 실패" });
   }
 });
 
