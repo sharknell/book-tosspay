@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/authContext";
 import AdminReturnSpots from "../components/admin/AdminReturnSpots";
+import BooksTable from "../components/admin/BooksTable"; // BooksTable 컴포넌트 불러오기
+import UsersTable from "../components/admin/UsersTable"; // UsersTable 컴포넌트 불러오기
 
 const AdminDashboard = () => {
   const { accessToken, user, login, logout, loading } = useAuth(); // AuthContext에서 필요한 값들 불러옴
@@ -84,59 +86,8 @@ const AdminDashboard = () => {
       <h1>Admin Dashboard</h1>
       <p>Welcome to the admin dashboard!</p>
       <AdminReturnSpots />
-      <h2>Books Table</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Author</th>
-            <th>콘텐츠</th>
-            <th>출판사</th>
-            <th>출판일</th>
-            <th>번역가</th>
-            <th>Price</th>
-            <th>할인된 가격</th>
-          </tr>
-        </thead>
-        <tbody>
-          {books.map((book) => (
-            <tr key={book.id}>
-              <td>{book.id}</td>
-              <td>{book.title}</td>
-              <td>{book.author}</td>
-              <td>{book.contents}</td>
-              <td>{book.publisher}</td>
-              <td>{book.published_date}</td>
-              <td>{book.translator}</td>
-              <td>{book.price}</td>
-              <th>{book.sale_price}</th>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <h2>Users Table</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.username}</td>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <BooksTable books={books} /> {/* BooksTable 컴포넌트 추가 */}
+      <UsersTable users={users} /> {/* UsersTable 컴포넌트 추가 */}
     </div>
   );
 };
