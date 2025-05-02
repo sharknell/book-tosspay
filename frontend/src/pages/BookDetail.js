@@ -140,9 +140,6 @@ const BookDetail = () => {
               <p>
                 <strong>출판사:</strong> {book.publisher}
               </p>
-              <p>
-                <strong>페이지 수:</strong> {book.page_count || "정보 없음"}쪽
-              </p>
 
               <p>
                 <strong>출판일:</strong>{" "}

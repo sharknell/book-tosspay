@@ -75,8 +75,12 @@ const AdminDashboard = () => {
             <th>ID</th>
             <th>Title</th>
             <th>Author</th>
-            <th>Category</th>
+            <th>콘텐츠</th>
+            <th>출판사</th>
+            <th>출판일</th>
+            <th>번역가</th>
             <th>Price</th>
+            <th>할인된 가격</th>
           </tr>
         </thead>
         <tbody>
@@ -85,8 +89,12 @@ const AdminDashboard = () => {
               <td>{book.id}</td>
               <td>{book.title}</td>
               <td>{book.author}</td>
-              <td>{book.category}</td>
+              <td>{book.contents}</td>
+              <td>{book.publisher}</td>
+              <td>{book.published_date}</td>
+              <td>{book.translator}</td>
               <td>{book.price}</td>
+              <th>{book.sale_price}</th>
             </tr>
           ))}
         </tbody>

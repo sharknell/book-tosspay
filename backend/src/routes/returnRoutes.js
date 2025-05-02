@@ -29,4 +29,13 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/spots", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT * FROM return_spots");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: "반납 위치 불러오기 실패" });
+  }
+});
+
 module.exports = router;

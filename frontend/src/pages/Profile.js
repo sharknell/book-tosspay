@@ -5,12 +5,6 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/Profile.css";
 
-const returnSpots = [
-  { name: "홍대입구역 1번 출구", lat: 37.557192, lng: 126.924863 },
-  { name: "서울시청 앞 광장", lat: 37.5662952, lng: 126.9779451 },
-  { name: "잠실 롯데월드", lat: 37.511043, lng: 127.098167 },
-];
-
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [bookmarks, setBookmarks] = useState([]);
@@ -23,6 +17,22 @@ const Profile = () => {
   const [showRentalHistory, setShowRentalHistory] = useState(false); // 대여 내역 섹션을 열고 닫을 상태
   const mapRef = useRef(null);
   const { accessToken, refreshAccessToken } = useAuth();
+  const [returnSpots, setReturnSpots] = useState([]);
+
+  useEffect(() => {
+    const fetchReturnSpots = async () => {
+      try {
+        const { data } = await axios.get(
+          "http://localhost:5001/api/return/spots"
+        );
+        setReturnSpots(data);
+        console.log("반납 위치 데이터:", data);
+      } catch (err) {
+        toast.error("반납 위치 정보를 불러오지 못했습니다.");
+      }
+    };
+    fetchReturnSpots();
+  }, []);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -87,23 +97,24 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    if (!showModal) return;
-    const existingScript = document.querySelector(
-      'script[src*="kakao.com/v2/maps/sdk.js"]'
-    );
-    setMapLoading(true);
+    if (showModal && returnSpots.length > 0) {
+      const existingScript = document.querySelector(
+        'script[src*="kakao.com/v2/maps/sdk.js"]'
+      );
+      setMapLoading(true);
 
-    if (window.kakao && window.kakao.maps) {
-      initMap();
-    } else if (!existingScript) {
-      const script = document.createElement("script");
-      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_MAP_API_KEY}&autoload=false`;
-      script.onload = () => {
-        window.kakao.maps.load(initMap);
-      };
-      document.head.appendChild(script);
+      if (window.kakao && window.kakao.maps) {
+        initMap();
+      } else if (!existingScript) {
+        const script = document.createElement("script");
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_MAP_API_KEY}&autoload=false`;
+        script.onload = () => {
+          window.kakao.maps.load(initMap);
+        };
+        document.head.appendChild(script);
+      }
     }
-  }, [showModal]);
+  }, [showModal, returnSpots]);
 
   const initMap = () => {
     if (!mapRef.current) return;
