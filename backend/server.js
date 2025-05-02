@@ -23,15 +23,16 @@ app.use("/api/rentals", rentalsRoutes);
 app.use("/api/books", bookRoutes);
 // 회원가입 API
 app.post("/api/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, phone, address } = req.body;
+
   try {
     // 비밀번호 암호화
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 사용자 정보 저장
+    // 사용자 정보 저장 (phone_number, address 포함)
     const [result] = await db.query(
-      "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-      [username, email, hashedPassword]
+      "INSERT INTO users (username, email, password, phone, address) VALUES (?, ?, ?, ?, ?)",
+      [username, email, hashedPassword, phone, address]
     );
 
     res.status(201).json({ message: "회원가입 성공" });
@@ -40,6 +41,7 @@ app.post("/api/register", async (req, res) => {
     res.status(500).json({ message: "회원가입 실패" });
   }
 });
+
 app.post("/api/login", async (req, res) => {
   console.log("로그인 요청:", req.body);
   const { email, password } = req.body;

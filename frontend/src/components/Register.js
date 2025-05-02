@@ -1,32 +1,45 @@
 import React, { useState } from "react";
-import { registerUser } from "../services/accountService"; // API 요청 함수
-import { useNavigate } from "react-router-dom"; // useNavigate 훅 import
-import "../styles/Register.css"; // CSS 파일 import
+import { registerUser } from "../services/accountService";
+import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import DaumPostcode from "react-daum-postcode";
 import "react-toastify/dist/ReactToastify.css";
+import "../styles/Register.css";
 
 const Register = ({ showToast }) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // useNavigate 훅 사용
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [address, setAddress] = useState(""); // 주소
+  const [detailAddress, setDetailAddress] = useState(""); // 상세 주소
+  const [isPostcodeModalOpen, setIsPostcodeModalOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleComplete = (data) => {
+    const fullAddress = data.address;
+    setAddress(fullAddress);
+    setIsPostcodeModalOpen(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const fullAddress = `${address} ${detailAddress}`;
 
     try {
-      const data = await registerUser(email, username, password);
-      setMessage(data.message);
-
-      // 회원가입 성공 후 5초 뒤에 로그인 페이지로 이동
+      const data = await registerUser(
+        email,
+        username,
+        password,
+        phoneNumber,
+        fullAddress
+      );
+      toast.success("회원가입 성공! 5초 후 로그인 페이지로 이동합니다.");
       setTimeout(() => {
-        showToast("회원가입 성공! 5초 후 로그인 페이지로 이동합니다.");
-        navigate("/login"); // 로그인 페이지로 이동
-      }, 5000); // 5000ms (5초)
+        navigate("/login");
+      }, 5000);
     } catch (error) {
-      setMessage(error.message);
-      showToast(error.message); // 오류 발생 시 알림
+      toast.error(error.message);
     }
   };
 
@@ -39,22 +52,72 @@ const Register = ({ showToast }) => {
           placeholder="이메일"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <input
           type="text"
           placeholder="사용자명"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          required
         />
         <input
           type="password"
           placeholder="비밀번호"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
+        <input
+          type="tel"
+          placeholder="전화번호 (예: 010-1234-5678)"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          required
+        />
+
+        {/* 주소 검색 버튼 */}
+        <div className="address-section">
+          <button
+            type="button"
+            className="search-address-btn"
+            onClick={() => setIsPostcodeModalOpen(true)}
+          >
+            주소 검색
+          </button>
+          <input
+            type="text"
+            placeholder="주소"
+            value={address}
+            readOnly
+            required
+          />
+          <input
+            type="text"
+            placeholder="상세 주소"
+            value={detailAddress}
+            onChange={(e) => setDetailAddress(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* 주소 모달 */}
+        {isPostcodeModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <button
+                className="modal-close-btn"
+                onClick={() => setIsPostcodeModalOpen(false)}
+              >
+                ×
+              </button>
+              <DaumPostcode onComplete={handleComplete} />
+            </div>
+          </div>
+        )}
+
         <button type="submit">회원가입</button>
       </form>
-      {message && <p>{message}</p>}
       <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </div>
   );

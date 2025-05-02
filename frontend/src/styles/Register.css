@@ -1,62 +1,95 @@
 /* Register.css */
+
 .register-container {
   width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 420px;
+  margin: 60px auto;
+  padding: 32px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-family: "Segoe UI", sans-serif;
 }
 
 .register-title {
-  text-align: center;
   font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 24px;
+  color: #333;
 }
 
 .register-form input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  padding: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
   font-size: 14px;
-  outline: none;
-  transition: all 0.3s ease;
+  transition: border 0.3s ease;
 }
 
 .register-form input:focus {
   border-color: #6c63ff;
-  box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
+  outline: none;
 }
 
 .register-form button {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   background-color: #6c63ff;
   color: white;
-  font-size: 16px;
   font-weight: bold;
+  font-size: 16px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
 .register-form button:hover {
   background-color: #5747e4;
 }
 
-.register-form button:disabled {
-  background-color: #b4b4b4;
-  cursor: not-allowed;
-}
-
 .register-container p {
   text-align: center;
+  color: #777;
   font-size: 14px;
-  color: #888;
-  margin-top: 10px;
+  margin-top: 12px;
+}
+
+/* ---------------- 모달 스타일 ---------------- */
+
+.postcode-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.postcode-modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 16px 16px;
+  width: 90%;
+  max-width: 480px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* 닫기 버튼 */
+.close-modal-btn:hover {
+  color: #6c63ff;
+}
+
+/* react-daum-post 내부 박스 */
+.postcode-modal-content .react-daum-postcode {
+  height: 400px;
+  width: 100%;
 }
