@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/Profile.css";
+import DaumPostcode from "react-daum-postcode";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -13,12 +14,15 @@ const Profile = () => {
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
-  const [showBookmarks, setShowBookmarks] = useState(false); // 북마크 섹션을 열고 닫을 상태
-  const [showRentalHistory, setShowRentalHistory] = useState(false); // 대여 내역 섹션을 열고 닫을 상태
+  const [showUserInfo, setShowUserInfo] = useState(false);
+  const [showBookmarks, setShowBookmarks] = useState(false);
+  const [showRentalHistory, setShowRentalHistory] = useState(false);
   const mapRef = useRef(null);
   const { accessToken, refreshAccessToken } = useAuth();
   const [returnSpots, setReturnSpots] = useState([]);
-
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [detailedAddress, setDetailedAddress] = useState("");
+  const [address, setAddress] = useState(""); // 기본 주소
   useEffect(() => {
     const fetchReturnSpots = async () => {
       try {
@@ -26,7 +30,6 @@ const Profile = () => {
           "http://localhost:5001/api/return/spots"
         );
         setReturnSpots(data);
-        console.log("반납 위치 데이터:", data);
       } catch (err) {
         toast.error("반납 위치 정보를 불러오지 못했습니다.");
       }
@@ -47,7 +50,6 @@ const Profile = () => {
         setUser(data);
         fetchRentalHistory(data.id);
         fetchBookmarks(data.id);
-        toast.success("사용자 정보 불러오기 성공");
       } catch (error) {
         if (error.response?.status === 403) {
           toast.warning("⏳ 토큰 갱신 중...");
@@ -59,6 +61,52 @@ const Profile = () => {
     };
     fetchUserData();
   }, [accessToken, refreshAccessToken]);
+
+  const handleAddressSelect = async (data) => {
+    const selectedAddress = data.address;
+    setShowAddressModal(false);
+
+    // 주소와 상세주소를 함께 저장할 수 있도록
+    const addressWithDetail = `${selectedAddress} ${detailedAddress}`;
+
+    try {
+      await axios.patch(
+        "http://localhost:5001/api/mypage/user/address",
+        { address: addressWithDetail },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      toast.success("주소가 성공적으로 저장되었습니다!");
+      // 주소 반영 위해 유저 정보 다시 불러오기
+      const { data: updatedUser } = await axios.get(
+        "http://localhost:5001/api/mypage/user",
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      setUser(updatedUser);
+      console.log("주소 업데이트:", updatedUser);
+    } catch (err) {
+      toast.error("주소 저장 실패");
+    }
+  };
+
+  const handleAddressUpdate = async () => {
+    try {
+      await axios.patch(
+        "http://localhost:5001/api/mypage/user/address",
+        { address: user.address },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      toast.success("주소가 저장되었습니다!");
+      console.log("주소 업데이트:", user.address);
+    } catch (error) {
+      toast.error("주소 저장 실패");
+    }
+  };
 
   const fetchBookmarks = async (userId) => {
     try {
@@ -88,13 +136,9 @@ const Profile = () => {
     }
   };
 
-  const handleShowBookmarks = () => {
-    setShowBookmarks((prev) => !prev); // 북마크 섹션 토글
-  };
-
-  const handleShowRentalHistory = () => {
-    setShowRentalHistory((prev) => !prev); // 대여 내역 섹션 토글
-  };
+  const handleShowUserInfo = () => setShowUserInfo((prev) => !prev);
+  const handleShowBookmarks = () => setShowBookmarks((prev) => !prev);
+  const handleShowRentalHistory = () => setShowRentalHistory((prev) => !prev);
 
   useEffect(() => {
     if (showModal && returnSpots.length > 0) {
@@ -183,13 +227,38 @@ const Profile = () => {
       <ToastContainer position="top-center" autoClose={2000} />
       <h1 className="profile-title">내 프로필</h1>
 
-      <div className="profile-info">
-        <p>
-          <strong>아이디:</strong> {user.username}
-        </p>
-        <p>
-          <strong>이메일:</strong> {user.email}
-        </p>
+      {/* 사용자 정보 섹션 */}
+      <div className="profile-section">
+        <h2 onClick={handleShowUserInfo} style={{ cursor: "pointer" }}>
+          🙋 내 정보 {showUserInfo ? "▲" : "▼"}
+        </h2>
+        {showUserInfo && (
+          <div className="profile-info">
+            <p>
+              <strong>아이디:</strong> {user.username}
+            </p>
+            <p>
+              <strong>이메일:</strong> {user.email}
+            </p>
+            <p>
+              <strong>주소:</strong> {user.address || "주소 정보 없음"}
+            </p>
+            {/* 주소 추가 / 변경 버튼 */}
+            <button onClick={() => setShowAddressModal(true)}>
+              주소 추가 / 변경
+            </button>
+            {user.address && (
+              <div>
+                <input
+                  type="text"
+                  value={detailedAddress}
+                  onChange={(e) => setDetailedAddress(e.target.value)}
+                  placeholder="상세 주소를 입력해주세요."
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 북마크 섹션 */}
@@ -220,16 +289,11 @@ const Profile = () => {
                     <p>
                       <strong>출판사:</strong> {book.publisher}
                     </p>
-                    <p>
-                      <img
-                        src={book.cover_image || "/default-thumbnail.jpg"}
-                        alt={book.title}
-                        className="bookmark-image"
-                      />
-                    </p>
-                    <p>
-                      <strong>가격:</strong>
-                    </p>
+                    <img
+                      src={book.cover_image || "/default-thumbnail.jpg"}
+                      alt={book.title}
+                      className="bookmark-image"
+                    />
                   </li>
                 ))}
               </ul>
@@ -283,7 +347,7 @@ const Profile = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>📍 반납 위치 선택</h3>
-            {mapLoading ? <p>지도를 불러오는 중...</p> : null}
+            {mapLoading && <p>지도를 불러오는 중...</p>}
             <div ref={mapRef} className="map-view" />
             {selectedSpot && (
               <p>
@@ -293,6 +357,33 @@ const Profile = () => {
             <div className="modal-buttons">
               <button onClick={handleConfirmReturn}>반납 확정</button>
               <button onClick={() => setShowModal(false)}>취소</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showAddressModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>📍 주소 검색</h3>
+            <DaumPostcode onComplete={handleAddressSelect} autoClose />
+
+            <div>
+              <input
+                type="text"
+                value={address}
+                readOnly
+                placeholder="기본 주소"
+              />
+              <input
+                type="text"
+                value={detailedAddress}
+                onChange={(e) => setDetailedAddress(e.target.value)}
+                placeholder="상세 주소 입력"
+              />
+            </div>
+            <div className="modal-buttons">
+              <button onClick={handleAddressUpdate}>저장</button>
+              <button onClick={() => setShowAddressModal(false)}>취소</button>
             </div>
           </div>
         </div>
