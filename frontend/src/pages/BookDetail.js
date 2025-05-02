@@ -171,23 +171,49 @@ const BookDetail = () => {
             <p>
               <strong>대여 기간 선택 (최대 {MAX_RENT_DAYS}일):</strong>
             </p>
-            <DayPicker
-              className="custom-day-picker"
-              mode="range"
-              selected={selectedRange}
-              onSelect={handleDateSelection}
-              disabled={{
-                before: new Date(),
-                after: addDays(new Date(), MAX_RENT_DAYS),
-              }}
-            />
+            <div className="date-picker-content">
+              <DayPicker
+                className="custom-day-picker"
+                mode="range"
+                selected={selectedRange}
+                onSelect={handleDateSelection}
+                disabled={{
+                  before: new Date(),
+                  after: addDays(new Date(), MAX_RENT_DAYS),
+                }}
+              />
 
-            {selectedRange.from && selectedRange.to && (
-              <p className="selected-date">
-                {format(selectedRange.from, "yyyy-MM-dd")} ~{" "}
-                {format(selectedRange.to, "yyyy-MM-dd")}
-              </p>
-            )}
+              {/* 오른쪽 정보 영역 */}
+              <div className="rental-summary">
+                {selectedRange.from && (
+                  <>
+                    <p>
+                      📅 <strong>시작일:</strong>{" "}
+                      {format(selectedRange.from, "yyyy-MM-dd")}
+                    </p>
+                  </>
+                )}
+                {selectedRange.to && (
+                  <>
+                    <p>
+                      📅 <strong>종료일:</strong>{" "}
+                      {format(selectedRange.to, "yyyy-MM-dd")}
+                    </p>
+                    <p>
+                      ⏳ <strong>총 대여일수:</strong>{" "}
+                      {Math.ceil(
+                        (selectedRange.to - selectedRange.from) /
+                          (1000 * 60 * 60 * 24)
+                      ) + 1}{" "}
+                      일
+                    </p>
+                  </>
+                )}
+                <p>
+                  💰 <strong>대여 가격:</strong> {price.toLocaleString()}원
+                </p>
+              </div>
+            </div>
           </div>
 
           <p className="book-price">대여 가격: {price.toLocaleString()}원</p>
