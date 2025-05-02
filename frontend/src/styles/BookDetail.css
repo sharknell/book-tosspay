@@ -1,165 +1,182 @@
-.book-detail-container {
-  max-width: 420px;
-  margin: 20px auto;
-  padding: 30px;
-  background: linear-gradient(135deg, #ffffff, #f9f9f9);
-  border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-  overflow: hidden;
-  font-family: "Arial", sans-serif;
-  transition: all 0.3s ease;
-}
-/* BookDetail.css 또는 별도 CSS */
-.payment-result-container {
-  text-align: center;
-  margin-top: 80px;
-}
-
-.payment-result-container h2 {
-  margin: 20px 0;
-}
-
-.back-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
-}
-
-.back-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 14px 25px;
-  font-size: 18px;
-  border-radius: 30px;
-  display: flex;
+.book-detail {
+  margin: 0 auto;
+  padding: 24px;
+  background: #ffffff;
+  color: #333;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   align-items: center;
-  justify-content: center;
+  text-align: center;
+}
+
+.book-detail__loading,
+.book-detail__error {
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 40px;
+  color: #555;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #007bff;
+  font-size: 1rem;
+  background: none;
+  border: none;
   cursor: pointer;
-  margin-bottom: 25px;
-  transition: all 0.3s ease;
-  width: 100%;
-  text-align: center;
+  margin-bottom: 16px;
 }
 
-.back-button:hover {
-  background: #0056b3;
-  transform: translateY(-3px);
+.book-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 
-.book-info {
-  text-align: center;
-  font-size: 18px;
-}
-
-.book-info h1 {
-  font-size: 26px;
-  color: #222;
-  margin-bottom: 15px;
-  font-weight: 700;
+.book-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  text-align: left;
 }
 
 .book-image {
-  width: 95%;
+  flex: 1 1 45%;
+  max-width: 400px;
   height: auto;
-  border-radius: 12px;
-  margin: 20px 0;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.book-image:hover {
-  transform: scale(1.08);
-}
-
-.book-description {
-  text-align: left;
-  margin-top: 20px;
-  color: #444;
-  line-height: 1.6;
-}
-
-.book-description p {
-  font-size: 17px;
-  margin: 12px 0;
-}
-
-.book-description strong {
-  color: #007bff;
-  font-weight: bold;
-}
-
-.date-picker {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  margin-top: 15px;
-  background: #fff;
-  box-sizing: border-box;
-  transition: box-shadow 0.3s ease;
-}
-
-.date-picker:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.price-section {
-  margin-top: 20px;
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
-}
-
-.pay-button {
-  background: linear-gradient(135deg, #28a745, #218838);
-  color: white;
-  border: none;
-  padding: 16px 30px;
-  font-size: 18px;
-  border-radius: 30px;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 20px;
-  transition: all 0.3s ease;
-}
-
-.pay-button:hover {
-  background: #1e7e34;
-  transform: translateY(-3px);
-}
-
-.loading {
-  font-size: 22px;
-  text-align: center;
-  margin-top: 50px;
-  font-weight: bold;
-  color: #666;
+.book-info {
+  flex: 1 1 45%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  max-width: 600px;
+  word-break: keep-all;
 }
 
 .bookmark-button {
-  background: transparent;
-  color: #007bff;
-  border: 2px solid #007bff;
-  padding: 12px 20px;
-  font-size: 17px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #eee;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-top: 20px;
-  transition: all 0.3s ease;
-  width: 100%;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px; /* 북마크 버튼 위치 조정 */
 }
 
-.bookmark-button:hover {
-  background: #007bff;
+.date-picker-section {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.day-picker {
+  font-size: 1.2rem; /* 달력의 폰트 크기를 키웁니다 */
+}
+
+.selected-date {
+  margin-top: 10px;
+  font-weight: 500;
+  color: #007bff;
+}
+
+.book-price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: 24px;
+}
+
+/* DayPicker 내부 스타일 조정 */
+.DayPicker {
+  font-size: 1.2rem; /* 달력 폰트 크기 조정 */
+  --rdp-cell-size: 2.4rem; /* 날짜 셀 크기 조정 */
+  --rdp-day-size: 3rem; /* 선택된 날짜의 크기 */
+}
+
+.DayPicker-Day {
+  padding: 0.5rem;
+}
+
+.DayPicker-Day--selected {
+  background-color: #007bff;
   color: white;
-  transform: translateY(-3px);
 }
 
-.bookmark-button svg {
-  margin-right: 10px;
+.DayPicker-Day--disabled {
+  color: #ccc;
+}
+.custom-day-picker {
+  font-size: 1.5rem; /* 전체 폰트 크기 증가 */
+}
+
+.custom-day-picker .rdp-day {
+  width: 3rem; /* 날짜 셀 크기 */
+  height: 3rem; /* 날짜 셀 크기 */
+}
+
+.custom-day-picker .rdp-month {
+  font-size: 1.8rem; /* 월 이름 크기 */
+}
+
+.custom-day-picker .rdp-day--selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.custom-day-picker .rdp-day--disabled {
+  color: #ccc;
+}
+
+.custom-day-picker .rdp-week {
+  gap: 0.5rem; /* 날짜들 사이의 간격 */
+}
+
+.book-price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: 24px;
+}
+
+.rent-button {
+  margin-top: 16px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.rent-button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .book-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .book-image {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .rent-button {
+    width: 100%;
+  }
 }

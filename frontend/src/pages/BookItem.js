@@ -5,16 +5,11 @@ import "../styles/BookItem.css";
 
 const BookItem = ({ book }) => {
   const navigate = useNavigate();
-  const { accessToken, user, loading } = useAuth();
-  console.log("BookItem props:", book);
+  const { user, loading } = useAuth();
 
-  if (loading) {
-    return <div>로딩 중...</div>;
-  }
+  if (loading) return <div>로딩 중...</div>;
 
-  // 값 유효성 확인
-  const thumbnail =
-    book.thumbnail || book.cover_image || "http://localhost:3000/logo192.png";
+  const thumbnail = book.thumbnail || book.cover_image || "/logo192.png";
   const title = book.title || "제목 없음";
   const author = Array.isArray(book.authors)
     ? book.authors.join(", ")
@@ -27,37 +22,25 @@ const BookItem = ({ book }) => {
   const price =
     typeof book.price === "number" ? `${book.price.toLocaleString()}원` : "";
   const salePrice =
-    typeof book.sale_price === "number"
-      ? book.sale_price > 0
-        ? `${book.sale_price.toLocaleString()}원`
-        : "할인 정보 없음"
+    typeof book.sale_price === "number" && book.sale_price > 0
+      ? `${book.sale_price.toLocaleString()}원`
       : "";
-  const status = book.status || "";
+
+  const handleDetail = () => {
+    navigate(`/books-list/${book.id}`);
+  };
 
   return (
-    <div className="book-item-container">
-      <li className="book-item">
-        <div className="book-item-thumbnail">
-          <img src={thumbnail} alt={title} className="book-thumbnail" />
-        </div>
-        <div className="book-item-details">
-          <h3 className="book-title">{title}</h3>
-          <h5 className="book-author">{author}</h5>
-          <h5 className="book-publisher">{publisher}</h5>
-          <h5 className="book-published-date">{publishedDate}</h5>
-          <h5 className="book-price">{price}</h5>
-          <h5 className="book-sale-price">{salePrice}</h5>
-          <h5 className="book-status">{status}</h5>
-          <div className="button-group">
-            <button
-              className="rent-button"
-              onClick={() => navigate("/books-list", { state: { book } })}
-            >
-              자세히 보기
-            </button>
-          </div>
-        </div>
-      </li>
+    <div className="book-card" onClick={handleDetail}>
+      <img src={thumbnail} alt={title} className="book-image" />
+      <div className="book-info">
+        <h3 className="book-title">{title}</h3>
+        <p className="book-author">{author}</p>
+        <p className="book-publisher">{publisher}</p>
+        <p className="book-date">{publishedDate}</p>
+        {price && <p className="book-price">정가: {price}</p>}
+        {salePrice && <p className="book-sale-price">할인가: {salePrice}</p>}
+      </div>
     </div>
   );
 };

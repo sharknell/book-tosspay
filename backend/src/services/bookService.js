@@ -21,6 +21,11 @@ const fetchAllBooks = async () => {
       );
 
       const books = response.data.documents || [];
+      // 각 책의 contents 확인
+      books.forEach((book) => {
+        console.log("책 제목:", book.title);
+        console.log("책 내용:", book.contents); // contents 출력
+      });
       if (books.length === 0) break;
 
       const uniqueBooks = books.filter((book) => {
@@ -37,6 +42,7 @@ const fetchAllBooks = async () => {
 
       allBooks = [...allBooks, ...uniqueBooks];
       page++;
+      console.log("책 내용:", contents);
     }
   } catch (error) {
     console.error("❌ 카카오 API 오류:", error.message);
@@ -67,6 +73,66 @@ const initializeBooks = async () => {
   }
 };
 
+const saveBookToDB = async (book) => {
+  try {
+    const {
+      title,
+      authors,
+      publisher,
+      datetime: published_date,
+      isbn,
+      thumbnail: cover_image,
+      contents, // contents 가져오기
+      translators,
+      price,
+      sale_price,
+    } = book;
+
+    const cleanedIsbn = isbn ? isbn.trim() : null;
+
+    // 🔥 중복 체크 (ISBN 기준, 없으면 제목 + 출판사 기준)
+    const [existingBook] = await db.query(
+      "SELECT id FROM books WHERE isbn = ? OR (title = ? AND publisher = ?)",
+      [cleanedIsbn, title, publisher]
+    );
+
+    if (existingBook.length === 0) {
+      console.log(`📚 책 저장 중: ${title}`);
+      console.log("책 내용:", contents);
+
+      // contents가 없으면 빈 문자열로 처리
+      const bookContents = contents || "";
+
+      await db.query(
+        `INSERT INTO books (title, author, publisher, published_date, isbn, cover_image, contents, translators, price, sale_price) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          title,
+          authors.join(", "), // 🔥 배열을 문자열로 변환
+          publisher,
+          published_date,
+          cleanedIsbn,
+          cover_image,
+          bookContents, // contents를 빈 문자열로 처리
+          translators ? translators.join(", ") : null, // translators 배열을 문자열로 변환
+          price || null, // 가격 정보 추가
+          sale_price || null, // 세일 가격 정보 추가
+        ]
+      );
+      console.log("책 내용:", contents);
+
+      console.log(`✅ 저장 완료: ${title}`);
+      return true;
+    } else {
+      console.log(`⚠️ 이미 존재하는 책: ${title}`);
+      return false;
+    }
+  } catch (error) {
+    console.error("❌ DB 저장 오류:", error.sqlMessage || error.message);
+    return false;
+  }
+};
+
 const searchBooks = async (query) => {
   try {
     const sql = `
@@ -85,46 +151,6 @@ const searchBooks = async (query) => {
   } catch (error) {
     console.error("❌ DB 검색 오류:", error.message);
     return [];
-  }
-};
-
-const saveBookToDB = async (book) => {
-  try {
-    const {
-      title,
-      authors,
-      publisher,
-      datetime: published_date,
-      isbn,
-      thumbnail: cover_image,
-    } = book;
-
-    const cleanedIsbn = isbn ? isbn.trim() : null;
-
-    const [existingBook] = await db.query(
-      "SELECT id FROM books WHERE isbn = ? OR (title = ? AND publisher = ?)",
-      [cleanedIsbn, title, publisher]
-    );
-
-    if (existingBook.length === 0) {
-      await db.query(
-        "INSERT INTO books (title, author, publisher, published_date, isbn, cover_image) VALUES (?, ?, ?, ?, ?, ?)",
-        [
-          title,
-          authors.join(", "),
-          publisher,
-          published_date,
-          cleanedIsbn,
-          cover_image,
-        ]
-      );
-      return true;
-    } else {
-      return false;
-    }
-  } catch (error) {
-    console.error("❌ DB 저장 오류:", error.message);
-    return false;
   }
 };
 

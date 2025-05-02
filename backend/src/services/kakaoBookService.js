@@ -13,12 +13,32 @@ const searchBooks = async (query) => {
       },
       params: {
         query: query,
-        size: 1000, // 검색 결과 최대 10개
+        size: 3, // 결과 3개로 제한
       },
     });
 
     const books = response.data.documents || [];
 
+    // API에서 받아온 전체 책 데이터 출력
+    console.log("API에서 받아온 책 데이터:", books);
+
+    // 데이터가 있는지 확인
+    if (books.length === 0) {
+      console.log("❌ 책 데이터가 없습니다.");
+    }
+
+    // 첫 3개의 책을 콘솔에 출력
+    books.slice(0, 3).forEach((book, index) => {
+      console.log(`📚 책 ${index + 1}:`);
+      console.log(`- 제목: ${book.title}`);
+      console.log(`- 저자: ${book.authors}`);
+      console.log(`- 출판사: ${book.publisher}`);
+      console.log(`- 가격: ${book.price}`);
+      console.log(`- 썸네일: ${book.thumbnail}`);
+      console.log("-----");
+    });
+
+    // 데이터베이스에 책 저장
     for (const book of books) {
       await saveBookToDB(book);
     }
@@ -39,6 +59,10 @@ const saveBookToDB = async (book) => {
       datetime,
       isbn,
       thumbnail: cover_image,
+      contents,
+      translators,
+      price,
+      sale_price,
     } = book;
 
     const cleanedIsbn = isbn ? isbn.trim() : null;
@@ -53,8 +77,8 @@ const saveBookToDB = async (book) => {
       console.log(`📚 책 저장 중: ${title}`);
 
       await db.query(
-        `INSERT INTO books (kakao_id, title, author, publisher, published_date, isbn, cover_image) 
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO books (kakao_id, title, author, publisher, published_date, isbn, cover_image, contents, translators, price, sale_price) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           cleanedIsbn || null,
           title,
@@ -63,6 +87,10 @@ const saveBookToDB = async (book) => {
           datetime ? datetime.split("T")[0] : null,
           cleanedIsbn,
           cover_image,
+          contents || null,
+          translators ? translators.join(", ") : null, // 🔥 배열을 문자열로 변환
+          price || null,
+          sale_price || null,
         ]
       );
 

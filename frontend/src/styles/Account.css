@@ -1,0 +1,82 @@
+/* 전체 컨테이너 스타일 */
+.account-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; /* 두 섹션 간 여백 */
+  padding: 40px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap; /* 화면 크기가 작을 경우 줄 바꿈을 하도록 설정 */
+  box-sizing: border-box; /* 여백, 패딩이 요소의 크기에 포함되도록 */
+}
+
+/* 각 섹션 (로그인과 회원가입) 스타일 */
+.account-section {
+  flex: 1 1 calc(50% - 20px); /* 2개의 섹션이 50%씩 차지하도록 설정, gap을 고려한 너비 계산 */
+  background-color: #f4f4f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box; /* 패딩과 보더가 요소의 크기에 포함되도록 */
+}
+
+/* 모바일 화면에서 세로 배치 */
+@media (max-width: 768px) {
+  .account-container {
+    flex-direction: column; /* 화면 크기가 작을 경우 세로로 배치 */
+    gap: 20px;
+  }
+
+  .account-section {
+    width: 100%; /* 모바일 화면에서는 각 섹션이 전체 너비를 차지하도록 */
+  }
+}
+
+/* 기본 폼 스타일 */
+input[type="email"],
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box; /* padding과 border가 포함되도록 */
+}
+
+/* 버튼 스타일 */
+button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+/* 로그인/회원가입 링크 스타일 */
+.login-link,
+.signup-link {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.login-link a,
+.signup-link a {
+  color: #4caf50;
+  text-decoration: none;
+}
+
+.login-link a:hover,
+.signup-link a:hover {
+  text-decoration: underline;
+}

@@ -10,6 +10,8 @@ const rentalsRoutes = require("./src/routes/rentalsRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
 const mypageRoutes = require("./src/routes/mypageRoutes");
 const returnRoutes = require("./src/routes/returnRoutes");
+const adminRoutes = require("./src/routes/adminRoutes");
+
 const { authenticateToken } = require("./src/middleware/authMiddleware");
 const { initializeBooks } = require("./src/services/bookService");
 
@@ -136,7 +138,7 @@ app.post("/api/refresh", async (req, res) => {
 app.use("/api/mypage", mypageRoutes); // 마이페이지 라우트 추가
 
 app.use("/toss-pay", paymentRoutes); // 결제 라우트 추가
-
+app.use("/api/admin", adminRoutes);
 // 메인 라우트 - 서버 정상 실행 확인
 app.get("/", async (req, res) => {
   try {

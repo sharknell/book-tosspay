@@ -8,12 +8,13 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(null); // user 상태
-  const [loading, setLoading] = useState(true); // 로딩 상태 추가
+  const [loading, setLoading] = useState(true); // 로딩 상태
 
   // useEffect로 컴포넌트가 렌더링될 때 로그인된 사용자가 있는지 확인
   useEffect(() => {
     const storedToken = sessionStorage.getItem("accessToken");
 
+    // 토큰이 있으면 사용자 정보 불러오기
     if (storedToken) {
       setAccessToken(storedToken);
       fetchUser(storedToken); // 로그인된 경우, user 정보 불러오기
@@ -34,10 +35,11 @@ export const AuthProvider = ({ children }) => {
         }
       );
       setUser(response.data); // 서버에서 받은 유저 정보를 상태에 저장
-      setLoading(false); // 유저 정보 가져오면 로딩 종료
+      console.log("User 정보:", response.data);
     } catch (error) {
       console.error("User 정보 로딩 실패:", error);
-      setLoading(false); // 실패하더라도 로딩 종료
+    } finally {
+      setLoading(false); // 로딩 종료
     }
   };
 
@@ -48,9 +50,10 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
       });
-      setAccessToken(response.data.accessToken);
-      sessionStorage.setItem("accessToken", response.data.accessToken);
-      fetchUser(response.data.accessToken); // 로그인 후 user 정보 가져오기
+      const { accessToken } = response.data;
+      setAccessToken(accessToken);
+      sessionStorage.setItem("accessToken", accessToken);
+      fetchUser(accessToken); // 로그인 후 user 정보 가져오기
       return true;
     } catch (error) {
       console.error("로그인 실패:", error);

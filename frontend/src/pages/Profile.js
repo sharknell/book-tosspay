@@ -1,4 +1,3 @@
-// Profile.js
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/authContext";
 import axios from "axios";
@@ -20,6 +19,8 @@ const Profile = () => {
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
+  const [showBookmarks, setShowBookmarks] = useState(false); // 북마크 섹션을 열고 닫을 상태
+  const [showRentalHistory, setShowRentalHistory] = useState(false); // 대여 내역 섹션을 열고 닫을 상태
   const mapRef = useRef(null);
   const { accessToken, refreshAccessToken } = useAuth();
 
@@ -75,6 +76,14 @@ const Profile = () => {
     } catch (err) {
       toast.error("대여 내역 불러오기 실패");
     }
+  };
+
+  const handleShowBookmarks = () => {
+    setShowBookmarks((prev) => !prev); // 북마크 섹션 토글
+  };
+
+  const handleShowRentalHistory = () => {
+    setShowRentalHistory((prev) => !prev); // 대여 내역 섹션 토글
   };
 
   useEffect(() => {
@@ -172,65 +181,93 @@ const Profile = () => {
         </p>
       </div>
 
+      {/* 북마크 섹션 */}
       <div className="bookmark-section">
-        <h2>⭐ 내가 북마크한 도서</h2>
-        {bookmarks.length === 0 ? (
-          <p>북마크한 도서가 없습니다.</p>
-        ) : (
-          <ul className="bookmark-list">
-            {bookmarks.map((book) => (
-              <li key={book.id} className="bookmark-item">
-                <p>
-                  <strong>도서명:</strong> {book.title}
-                </p>
-                <p>
-                  <strong>저자:</strong> {book.author}
-                </p>
-                <p>
-                  <strong>출판사:</strong> {book.publisher}
-                </p>
-                <p>
-                  <strong>ISBN:</strong> {book.isbn}
-                </p>
-              </li>
-            ))}
-          </ul>
+        <h2 onClick={handleShowBookmarks} style={{ cursor: "pointer" }}>
+          ⭐ 내가 북마크한 도서 {showBookmarks ? "▲" : "▼"}
+        </h2>
+        {showBookmarks && (
+          <div>
+            {bookmarks.length === 0 ? (
+              <p>북마크한 도서가 없습니다.</p>
+            ) : (
+              <ul className="bookmark-list">
+                {bookmarks.map((book) => (
+                  <li key={book.id} className="bookmark-item">
+                    <p>
+                      <strong>도서명:</strong>{" "}
+                      <a
+                        href={`/books-list/${book.id}`}
+                        className="bookmark-link"
+                      >
+                        {book.title}
+                      </a>
+                    </p>
+                    <p>
+                      <strong>저자:</strong> {book.author}
+                    </p>
+                    <p>
+                      <strong>출판사:</strong> {book.publisher}
+                    </p>
+                    <p>
+                      <img
+                        src={book.cover_image || "/default-thumbnail.jpg"}
+                        alt={book.title}
+                        className="bookmark-image"
+                      />
+                    </p>
+                    <p>
+                      <strong>가격:</strong>
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
       </div>
 
+      {/* 대여 내역 섹션 */}
       <div className="rental-history">
-        <h2>📚 대여 내역</h2>
-        {rentalHistory.length === 0 ? (
-          <p>대여한 도서가 없습니다.</p>
-        ) : (
-          <ul className="rental-list">
-            {rentalHistory.map((rental) => (
-              <li key={rental.order_id} className="rental-item">
-                <p>
-                  <strong>도서명:</strong> {rental.title}
-                </p>
-                <p>
-                  <strong>ISBN:</strong> {rental.isbn}
-                </p>
-                <p>
-                  <strong>대여 기간:</strong> {rental.rental_start} ~{" "}
-                  {rental.rental_end || "미반납"}
-                </p>
-                <p>
-                  <strong>가격:</strong> {rental.price.toLocaleString()}원
-                </p>
-                <button
-                  onClick={() => handleReturnClick(rental)}
-                  disabled={isReturnCompleted(rental)}
-                >
-                  {isReturnCompleted(rental) ? "✅ 반납 완료" : "반납하기"}
-                </button>
-              </li>
-            ))}
-          </ul>
+        <h2 onClick={handleShowRentalHistory} style={{ cursor: "pointer" }}>
+          📚 대여 내역 {showRentalHistory ? "▲" : "▼"}
+        </h2>
+        {showRentalHistory && (
+          <div>
+            {rentalHistory.length === 0 ? (
+              <p>대여한 도서가 없습니다.</p>
+            ) : (
+              <ul className="rental-list">
+                {rentalHistory.map((rental) => (
+                  <li key={rental.order_id} className="rental-item">
+                    <p>
+                      <strong>도서명:</strong> {rental.title}
+                    </p>
+                    <p>
+                      <strong>ISBN:</strong> {rental.isbn}
+                    </p>
+                    <p>
+                      <strong>대여 기간:</strong> {rental.rental_start} ~{" "}
+                      {rental.rental_end || "미반납"}
+                    </p>
+                    <p>
+                      <strong>가격:</strong> {rental.price.toLocaleString()}원
+                    </p>
+                    <button
+                      onClick={() => handleReturnClick(rental)}
+                      disabled={isReturnCompleted(rental)}
+                    >
+                      {isReturnCompleted(rental) ? "✅ 반납 완료" : "반납하기"}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
       </div>
 
+      {/* 지도 모달 */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">

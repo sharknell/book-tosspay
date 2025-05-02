@@ -39,7 +39,11 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     setCurrentUser(null);
-    toast.info("👋 로그아웃 되었습니다.");
+    toast.info("👋 로그아웃 되었습니다.", {
+      position: "top-center",
+      autoClose: 2000,
+      theme: "colored",
+    });
   };
 
   return (
@@ -76,12 +80,12 @@ const Header = () => {
             ) : (
               <>
                 <li>
-                  <Link to="/login" className="link">
+                  <Link to="/account" className="link">
                     로그인
                   </Link>
                 </li>
                 <li>
-                  <Link to="/register" className="link register-btn">
+                  <Link to="/account" className="link register-btn">
                     회원가입
                   </Link>
                 </li>

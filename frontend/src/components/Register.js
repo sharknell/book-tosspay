@@ -5,7 +5,7 @@ import "../styles/Register.css"; // CSS 파일 import
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const Register = () => {
+const Register = ({ showToast }) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,11 +21,12 @@ const Register = () => {
 
       // 회원가입 성공 후 5초 뒤에 로그인 페이지로 이동
       setTimeout(() => {
-        toast.success("회원가입 성공! 5초 후 로그인 페이지로 이동합니다.");
+        showToast("회원가입 성공! 5초 후 로그인 페이지로 이동합니다.");
         navigate("/login"); // 로그인 페이지로 이동
       }, 5000); // 5000ms (5초)
     } catch (error) {
       setMessage(error.message);
+      showToast(error.message); // 오류 발생 시 알림
     }
   };
 
@@ -54,11 +55,7 @@ const Register = () => {
         <button type="submit">회원가입</button>
       </form>
       {message && <p>{message}</p>}
-      <div className="login-link">
-        <p>
-          이미 계정이 있나요? <a href="/login">로그인</a>
-        </p>
-      </div>
+      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </div>
   );
 };

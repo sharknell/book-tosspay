@@ -10,17 +10,22 @@ const BookList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [query, setQuery] = useState(""); // 검색어 기본값은 빈 문자열
+  const [query, setQuery] = useState("공부"); // 검색어 기본값은 빈 문자열
   const [page, setPage] = useState(1);
-  const booksPerPage = 5;
+  const booksPerPage = 8;
 
   useEffect(() => {
-    fetchBooks(query, page); // 검색어만으로 도서 리스트 로드
+    // 기본 도서 목록을 로드하거나 검색어가 있을 경우 해당 목록을 로드
+    if (query === "") {
+      fetchBooks("", page); // 검색어가 없으면 기본 목록
+    } else {
+      fetchBooks(query, page); // 검색어가 있으면 해당 목록
+    }
   }, [query, page]);
 
   const fetchBooks = (searchQuery, currentPage) => {
     setLoading(true);
-    getBooks(searchQuery, currentPage, booksPerPage) // 카테고리, 인기순 정렬 없이 기본 검색어만
+    getBooks(searchQuery, currentPage, booksPerPage) // 검색어에 맞춰 도서 목록 로드
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setBooks(data);
@@ -43,7 +48,7 @@ const BookList = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setPage(1); // 페이지를 첫 페이지로 리셋
-    fetchBooks(query, 1);
+    fetchBooks(query, 1); // 검색어로 도서 목록 로드
   };
 
   const handleNextPage = () => {
@@ -79,19 +84,13 @@ const BookList = () => {
 
       {/* 도서 목록 */}
       <ul>
-        {displayedBooks.length > 0 ? (
-          displayedBooks.map((book, i) => {
-            return (
-              <li key={i}>
-                <Link to={`/books-list/${book.id}`}>
-                  <BookItem book={book} user={user} />
-                </Link>
-              </li>
-            );
-          })
-        ) : (
-          <li>결과가 없습니다.</li>
-        )}
+        <div className="book-grid">
+          {displayedBooks.length > 0 ? (
+            displayedBooks.map((book) => <BookItem key={book.id} book={book} />)
+          ) : (
+            <p>결과가 없습니다.</p>
+          )}
+        </div>
       </ul>
 
       <div className="pagination">

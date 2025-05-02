@@ -7,15 +7,16 @@ import {
 } from "react-router-dom";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Account from "./pages/Account";
 import BooksList from "./pages/BookList";
 import BookDetail from "./pages/BookDetail";
 import PaymentSuccess from "./pages/payment/PaymentSuccess";
 import PaymentFail from "./pages/payment/PaymentFail";
-
 import Profile from "./pages/Profile";
+import AdminDashboard from "./pages/AdminDashboard";
+import { ToastContainer } from "react-toastify";
 import { useAuth } from "./context/authContext";
+import ProtectedAdminRoute from "./ProjectedAdminRoute.js/ProjectedAdminRoute";
 
 // 보호된 경로 처리
 function ProtectedRoute({ children }) {
@@ -44,20 +45,13 @@ function App() {
   return (
     <Router>
       <Header />
+      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
       <Routes>
         <Route
-          path="/login"
+          path="/account"
           element={
             <ProtectedLoginRoute>
-              <Login />
-            </ProtectedLoginRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <ProtectedLoginRoute>
-              <Register />
+              <Account />
             </ProtectedLoginRoute>
           }
         />
@@ -85,6 +79,14 @@ function App() {
             <ProtectedRoute>
               <Profile />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admindashboard"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboard />
+            </ProtectedAdminRoute>
           }
         />
       </Routes>

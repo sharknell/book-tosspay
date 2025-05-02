@@ -30,11 +30,10 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <h2>로그인</h2>
       <form onSubmit={handleLogin} className="login-form">
+        <h2>로그인</h2>
         <div>
           <label className="login-form-label">Email</label>
-          <br />
           <input
             type="email"
             value={email}
@@ -45,7 +44,6 @@ const Login = () => {
         </div>
         <div>
           <label className="login-form-label">Password</label>
-          <br />
           <input
             type="password"
             value={password}
@@ -58,13 +56,6 @@ const Login = () => {
         <button type="submit" disabled={loading}>
           {loading ? "로그인 중..." : "로그인"}
         </button>
-
-        <p>
-          아직 회원이 아니신가요?{" "}
-          <Link to="/register" className="signup-link">
-            회원가입
-          </Link>
-        </p>
       </form>
       <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </div>
