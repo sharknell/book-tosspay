@@ -12,11 +12,6 @@ const BookItem = ({ book }) => {
     return <div>로딩 중...</div>;
   }
 
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
-
   // 값 유효성 확인
   const thumbnail =
     book.thumbnail || book.cover_image || "http://localhost:3000/logo192.png";

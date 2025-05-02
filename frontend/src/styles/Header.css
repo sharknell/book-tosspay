@@ -1,74 +1,94 @@
-@import url(https://fonts.googleapis.com/css?family=Oswald);
+/* Header.css */
+
+:root {
+  --main-color: #4a90e2;
+  --dark-text: #222;
+  --light-text: #fff;
+  --bg-header: #ffffff;
+  --bg-hover: #f0f4f8;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --radius: 8px;
+}
 
 .header {
+  background-color: var(--bg-header);
+  padding: 1rem 2rem;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.header-container {
+  max-width: 1200px;
   margin: 0 auto;
-  background-color: #fff;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  /* border-bottom: 2px solid #ddd; */
-  border-left: 2px solid #ddd;
-  border-right: 2px solid #ddd;
-  border-top: 2px solid #ddd;
-  text-align: center;
+  flex-wrap: wrap;
 }
 
-.logo {
-  flex-grow: 1;
-  text-align: center;
-}
-
-.header-title {
-  font-family: "Oswald", sans-serif;
-  font-size: 22px;
-  color: #333;
-  text-align: center;
-  text-decoration: none;
-}
-
-.nav-links {
-  display: flex;
-  gap: 2px;
-  justify-content: flex-end; /* 메뉴 항목을 오른쪽에 배치 */
-  align-items: center;
+.logo h1 {
+  font-size: 1.6rem;
+  color: var(--main-color);
+  margin: 0;
 }
 
 .nav-links ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
   display: flex;
   align-items: center;
-}
-
-.nav-links li {
+  gap: 1.5rem;
+  list-style: none;
   margin: 0;
+  padding: 0;
 }
 
 .link {
   text-decoration: none;
-  color: #333;
-  font-size: 14px;
-  padding: 5px 10px;
+  color: var(--dark-text);
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--main-color);
 }
 
 .logout-btn,
 .register-btn {
-  color: #333;
+  background-color: var(--main-color);
+  color: var(--light-text);
   border: none;
-  padding: 6px 10px;
-  border-radius: 5px;
-  font-size: 14px;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius);
   cursor: pointer;
-}
-.logout-btn {
-  color: #333;
-  margin-left: 10px;
+  transition: background-color 0.2s ease;
+  font-weight: 500;
 }
 
-.welcome {
-  font-size: 14px;
+.logout-btn:hover,
+.register-btn:hover {
+  background-color: #357ac9;
+}
+
+.welcome .link {
   font-weight: bold;
-  color: #444;
+  color: var(--main-color);
+}
+
+@media (max-width: 768px) {
+  .nav-links ul {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logo {
+    margin-bottom: 1rem;
+  }
 }

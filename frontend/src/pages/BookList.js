@@ -94,7 +94,6 @@ const BookList = () => {
         )}
       </ul>
 
-      {/* 페이지 네비게이션 */}
       <div className="pagination">
         <button onClick={handlePrevPage} disabled={page === 1}>
           이전
