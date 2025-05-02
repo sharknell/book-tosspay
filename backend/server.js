@@ -40,13 +40,11 @@ app.post("/api/register", async (req, res) => {
     res.status(500).json({ message: "회원가입 실패" });
   }
 });
-// 로그인 API
 app.post("/api/login", async (req, res) => {
   console.log("로그인 요청:", req.body);
   const { email, password } = req.body;
 
   try {
-    // 사용자 조회
     const [users] = await db.query("SELECT * FROM users WHERE email = ?", [
       email,
     ]);
@@ -59,7 +57,6 @@ app.post("/api/login", async (req, res) => {
 
     const user = users[0];
 
-    // 비밀번호 확인
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -68,33 +65,41 @@ app.post("/api/login", async (req, res) => {
         .json({ message: "이메일 또는 비밀번호가 잘못되었습니다." });
     }
 
-    // 액세스 토큰 생성
     const accessToken = jwt.sign(
       { userId: user.id },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "30d" }
     );
 
-    // 리프레시 토큰 생성
     const refreshToken = jwt.sign(
       { userId: user.id },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "30d" }
     );
 
-    // 리프레시 토큰 DB에 저장
     await db.query(
       "INSERT INTO tokens (user_id, refresh_token) VALUES (?, ?)",
       [user.id, refreshToken]
     );
 
-    // 토큰 반환
-    res.json({ accessToken, refreshToken });
+    // ✅ user 정보도 응답에 포함
+    res.json({
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role, // <- role 포함
+      },
+    });
+    console.log("로그인 정보:", user);
   } catch (error) {
     console.error("로그인 오류:", error);
     res.status(500).json({ message: "로그인 실패" });
   }
 });
+
 // 리프레시 토큰으로 액세스 토큰 재발급
 app.post("/api/refresh", async (req, res) => {
   const { refreshToken } = req.body;

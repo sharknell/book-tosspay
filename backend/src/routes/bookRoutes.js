@@ -4,15 +4,22 @@ const db = require("../config/db");
 
 const router = express.Router();
 
-// 📌 1️⃣ 도서 검색 API
+// 📌 1️⃣ 도서 검색 및 전체 조회 API
 router.get("/search", async (req, res) => {
   try {
     const { query } = req.query;
-    if (!query) return res.status(400).json({ error: "검색어를 입력하세요." });
 
-    const books = await searchBooks(query);
+    let books;
+    if (query && query.trim() !== "") {
+      // 검색어가 있을 경우: 검색
+      books = await searchBooks(query);
+    } else {
+      // 검색어가 없을 경우: 전체 도서 목록
+      const [rows] = await db.execute("SELECT * FROM books");
+      books = rows;
+    }
+
     res.json(books);
-    console.log("📚 검색 결과:", books); // 검색 결과 확인
   } catch (error) {
     console.error("❌ 검색 API 오류:", error.message);
     res.status(500).json({ error: "검색 중 오류 발생" });

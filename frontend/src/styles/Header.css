@@ -1,110 +1,117 @@
-/* 공통 스타일 */
-.header {
-  background-color: #007bff;
-  color: white;
-  padding: 16px 24px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
+@import url(https://fonts.googleapis.com/css?family=Oswald);
 
-.header-container {
+.header {
+  margin: 0 auto;
+  background-color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 10px 15px;
+  border-left: 2px solid #ddd;
+  border-right: 2px solid #ddd;
+  border-top: 2px solid #ddd;
+  text-align: center;
+  flex-wrap: wrap; /* 반응형 줄바꿈을 허용 */
+}
+
+.logo {
+  flex-grow: 1;
+  text-align: center;
 }
 
 .header-title {
+  font-family: "Oswald", sans-serif;
+  font-size: 22px;
+  color: #333;
+  text-align: center;
   text-decoration: none;
-  color: white;
 }
 
-.header-title-style {
-  font-size: 1.6rem;
-  margin: 0;
+.nav-links {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-/* 네비게이션 */
 .nav-links ul {
   list-style: none;
-  display: flex;
-  gap: 16px;
-  margin: 0;
   padding: 0;
+  margin: 0;
+  display: flex;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-links li {
+  margin: 0;
 }
 
 .link {
-  color: white;
   text-decoration: none;
-  font-weight: 500;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: background 0.2s ease;
+  color: #333;
+  font-size: 14px;
+  padding: 5px 10px;
 }
 
-.link:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
+.logout-btn,
 .register-btn {
-  background-color: white;
-  color: #007bff;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-weight: 600;
-}
-
-.logout-btn {
-  background-color: #ff4d4f;
-  color: white;
-  padding: 6px 12px;
+  color: #333;
   border: none;
-  border-radius: 6px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 14px;
   cursor: pointer;
-  font-weight: 500;
 }
-
-.logout-btn:hover {
-  background-color: #d9363e;
+.logout-btn {
+  margin-left: 10px;
 }
 
 .welcome {
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: bold;
+  color: #444;
 }
 
-/* 반응형 스타일 */
+/* ========================= */
+/* ✅ 반응형 스타일 추가 */
+/* ========================= */
 @media (max-width: 768px) {
-  .header-container {
+  .header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: stretch;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .logo {
+    margin-bottom: 10px;
+  }
+
+  .header-title {
+    font-size: 20px;
+  }
+
+  .nav-links {
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .nav-links ul {
     flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  .nav-links ul li {
-    width: 100%;
+    gap: 6px;
   }
 
   .link,
-  .register-btn,
-  .logout-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 10px;
+  .logout-btn,
+  .register-btn {
+    font-size: 13px;
+    padding: 6px 12px;
   }
 
-  .header-title-style {
-    font-size: 1.4rem;
+  .welcome {
+    font-size: 13px;
   }
 }

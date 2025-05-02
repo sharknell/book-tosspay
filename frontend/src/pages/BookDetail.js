@@ -28,7 +28,7 @@ const BookDetail = () => {
   const { isBookmarked } = useSelector((state) => state.bookmark);
   const { selectedRange, price } = useSelector((state) => state.rental);
 
-  const MAX_RENT_DAYS = 14;
+  const MAX_RENT_DAYS = 31;
 
   useEffect(() => {
     dispatch(fetchBookDetail(id));
@@ -52,11 +52,18 @@ const BookDetail = () => {
   };
 
   const handleDateSelection = (range) => {
-    if (!range.from) {
+    // range가 정의되지 않았을 경우를 처리
+    if (!range || !range.from) {
       dispatch(setRentalPeriod({ from: null, to: null }));
       return;
     }
-    dispatch(setRentalPeriod(range));
+
+    // 두 날짜가 동일한 경우, 'from'만 설정하고 'to'는 null로 설정
+    if (range.from && range.to && range.from.getTime() === range.to.getTime()) {
+      dispatch(setRentalPeriod({ from: range.from, to: null }));
+    } else {
+      dispatch(setRentalPeriod(range));
+    }
   };
 
   const handleRent = async () => {
@@ -142,18 +149,24 @@ const BookDetail = () => {
                 {book.published_date?.split("T")[0] || "미상"}
               </p>
               <p>
-                <strong>ISBN:</strong> {book.isbn || "정보 없음"}
-              </p>
-              <>
-                <p>
-                  <strong>내용 : {book.contents || "정보 없음"}</strong>
-                </p>
-              </>
-              <p>
-                <strong>장르:</strong> {book.genre || "정보 없음"}
+                <strong>가격:</strong>{" "}
+                {book.sale_price && book.sale_price < book.price ? (
+                  <>
+                    <span className="original-price">
+                      {book.price.toLocaleString()}원
+                    </span>{" "}
+                    <span className="sale-price">
+                      {book.sale_price.toLocaleString()}원
+                    </span>
+                  </>
+                ) : (
+                  <>{book.price.toLocaleString()}원</>
+                )}
               </p>
 
-              <p></p>
+              <p>
+                <strong>내용 : {book.contents || "정보 없음"}</strong>
+              </p>
             </div>
           </div>
 

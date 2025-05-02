@@ -1,70 +1,66 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
-// AuthContext 생성
 const AuthContext = createContext(null);
 
-// AuthProvider
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
-  const [user, setUser] = useState(null); // user 상태
-  const [loading, setLoading] = useState(true); // 로딩 상태
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // useEffect로 컴포넌트가 렌더링될 때 로그인된 사용자가 있는지 확인
   useEffect(() => {
     const storedToken = sessionStorage.getItem("accessToken");
 
-    // 토큰이 있으면 사용자 정보 불러오기
     if (storedToken) {
       setAccessToken(storedToken);
-      fetchUser(storedToken); // 로그인된 경우, user 정보 불러오기
+      fetchUser(storedToken);
     } else {
-      setLoading(false); // 토큰이 없으면 바로 로딩 완료 처리
+      setLoading(false);
     }
   }, []);
 
-  // 유저 정보 가져오는 함수
   const fetchUser = async (token) => {
     try {
       const response = await axios.get(
         "http://localhost:5001/api/mypage/user",
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setUser(response.data); // 서버에서 받은 유저 정보를 상태에 저장
-      console.log("User 정보:", response.data);
+      setUser(response.data);
+      return response.data; // ✅ 이 줄을 추가!
     } catch (error) {
       console.error("User 정보 로딩 실패:", error);
+      return null;
     } finally {
-      setLoading(false); // 로딩 종료
+      setLoading(false);
     }
   };
 
-  // 로그인 함수
   const login = async (email, password) => {
     try {
       const response = await axios.post("http://localhost:5001/api/login", {
         email,
         password,
       });
+
       const { accessToken } = response.data;
+
       setAccessToken(accessToken);
       sessionStorage.setItem("accessToken", accessToken);
-      fetchUser(accessToken); // 로그인 후 user 정보 가져오기
-      return true;
+
+      const userInfo = await fetchUser(accessToken); // ✅ 이 값이 이제 존재함!
+      console.log("로그인 성공:", userInfo);
+      return userInfo;
     } catch (error) {
       console.error("로그인 실패:", error);
-      return false;
+      return null;
     }
   };
 
-  // 로그아웃 함수
   const logout = () => {
     setAccessToken(null);
-    setUser(null); // 로그아웃 시 user 정보 초기화
+    setUser(null);
     sessionStorage.removeItem("accessToken");
   };
 
@@ -75,7 +71,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// useAuth 훅으로 AuthContext 사용
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { getBooks } from "../services/bookService";
 import BookItem from "./BookItem";
 import { useAuth } from "../context/authContext";
-import { Link } from "react-router-dom"; // Import Link
 import "../styles/BookList.css"; // CSS 파일 import
 
 const BookList = () => {
@@ -10,17 +9,12 @@ const BookList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [query, setQuery] = useState("공부"); // 검색어 기본값은 빈 문자열
+  const [query, setQuery] = useState(""); // 검색어 기본값은 빈 문자열
   const [page, setPage] = useState(1);
   const booksPerPage = 8;
 
   useEffect(() => {
-    // 기본 도서 목록을 로드하거나 검색어가 있을 경우 해당 목록을 로드
-    if (query === "") {
-      fetchBooks("", page); // 검색어가 없으면 기본 목록
-    } else {
-      fetchBooks(query, page); // 검색어가 있으면 해당 목록
-    }
+    fetchBooks(query, page); // ✅ 조건 없이 항상 검색어에 따라 로드
   }, [query, page]);
 
   const fetchBooks = (searchQuery, currentPage) => {

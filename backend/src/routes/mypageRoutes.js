@@ -7,7 +7,7 @@ const { authenticateToken } = require("../middleware/authMiddleware");
 router.get("/user", authenticateToken, async (req, res) => {
   try {
     const [users] = await db.query(
-      "SELECT id, username, email FROM users WHERE id = ?",
+      "SELECT id, username, email, role FROM users WHERE id = ?",
       [req.user.userId]
     );
 

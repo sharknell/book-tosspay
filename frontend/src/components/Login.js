@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
-import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/Login.css";
@@ -11,18 +10,25 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAuth(); // ✅ user 제거
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const success = await login(email, password);
+    const user = await login(email, password); // ✅ 한 번만 호출
     setLoading(false);
 
-    if (success) {
+    if (user) {
       toast.success("✅ 로그인 성공!");
-      navigate("/books-list");
+      setTimeout(() => {
+        console.log("user role:", user.role); // 디버깅용 출력
+        if (user.role === "admin") {
+          navigate("/admindashboard");
+        } else {
+          navigate("/books-list");
+        }
+      }, 1000);
     } else {
       toast.error("❌ 이메일 또는 비밀번호가 올바르지 않습니다.");
     }

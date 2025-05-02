@@ -133,6 +133,16 @@
   background-color: #007bff;
   color: white;
 }
+.original-price {
+  text-decoration: line-through;
+  color: #999;
+  margin-right: 8px;
+}
+
+.sale-price {
+  color: #e53935; /* 빨간색 강조 */
+  font-weight: bold;
+}
 
 .custom-day-picker .rdp-day--disabled {
   color: #ccc;

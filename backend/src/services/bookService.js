@@ -22,10 +22,7 @@ const fetchAllBooks = async () => {
 
       const books = response.data.documents || [];
       // 각 책의 contents 확인
-      books.forEach((book) => {
-        console.log("책 제목:", book.title);
-        console.log("책 내용:", book.contents); // contents 출력
-      });
+      books.forEach((book) => {});
       if (books.length === 0) break;
 
       const uniqueBooks = books.filter((book) => {
@@ -42,7 +39,6 @@ const fetchAllBooks = async () => {
 
       allBooks = [...allBooks, ...uniqueBooks];
       page++;
-      console.log("책 내용:", contents);
     }
   } catch (error) {
     console.error("❌ 카카오 API 오류:", error.message);
@@ -97,9 +93,6 @@ const saveBookToDB = async (book) => {
     );
 
     if (existingBook.length === 0) {
-      console.log(`📚 책 저장 중: ${title}`);
-      console.log("책 내용:", contents);
-
       // contents가 없으면 빈 문자열로 처리
       const bookContents = contents || "";
 
@@ -119,12 +112,9 @@ const saveBookToDB = async (book) => {
           sale_price || null, // 세일 가격 정보 추가
         ]
       );
-      console.log("책 내용:", contents);
 
-      console.log(`✅ 저장 완료: ${title}`);
       return true;
     } else {
-      console.log(`⚠️ 이미 존재하는 책: ${title}`);
       return false;
     }
   } catch (error) {
