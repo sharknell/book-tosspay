@@ -1,16 +1,31 @@
-// Express Router
 const express = require("express");
 const router = express.Router();
-const db = require("../config/db"); // Sequelize 또는 MySQL 연결 모듈
-
+const db = require("../config/db");
 // POST /api/rentals
 router.post("/", async (req, res) => {
-  const { userId, email, bookId, title, from, to, price, orderId } = req.body;
+  const { userId, email, bookId, title, from, to, price, orderId, address } =
+    req.body;
+
+  if (
+    !userId ||
+    !email ||
+    !bookId ||
+    !title ||
+    !from ||
+    !to ||
+    !price ||
+    !orderId ||
+    !address
+  ) {
+    return res.status(400).json({ message: "필수 정보 누락" });
+  }
 
   try {
     await db.query(
-      "INSERT INTO rentals (user_id, email, book_id, title, rent_from, rent_to, price, order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [userId, email, bookId, title, from, to, price, orderId]
+      `INSERT INTO rentals 
+        (user_id, email, book_id, title, rental_start, rental_end, price, order_id, address, returned)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, email, bookId, title, from, to, price, orderId, address, false]
     );
 
     res.status(201).json({ message: "대여 정보 저장 완료!" });

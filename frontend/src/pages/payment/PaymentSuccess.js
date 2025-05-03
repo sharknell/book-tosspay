@@ -25,12 +25,16 @@ const PaymentSuccess = () => {
             const res = await axios.post(
               "http://localhost:5001/toss-pay/success",
               rentalInfo,
+
+              console.log("전송할 rentalInfo:", rentalInfo),
               {
                 headers: {
                   "Content-Type": "application/json",
                 },
               }
             );
+            console.log("전송할 rentalInfo:", rentalInfo);
+
             if (res.data.success) {
               console.log("전송할 rentalInfo:", rentalInfo);
               toast.success("🎉 대여가 완료되었습니다!");

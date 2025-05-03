@@ -130,7 +130,6 @@ const Profile = () => {
     }
   };
 
-  const handleShowUserInfo = () => setShowUserInfo((prev) => !prev);
   const handleShowBookmarks = () => setShowBookmarks((prev) => !prev);
   const handleShowRentalHistory = () => setShowRentalHistory((prev) => !prev);
 
@@ -184,29 +183,6 @@ const Profile = () => {
   const handleReturnClick = (rental) => {
     setSelectedRental(rental);
     setShowModal(true);
-  };
-
-  const handleSavePhone = async () => {
-    try {
-      await axios.patch(
-        "http://localhost:5001/api/mypage/user/phone",
-        { phone },
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      toast.success("전화번호가 저장되었습니다!");
-      const { data: updatedUser } = await axios.get(
-        "http://localhost:5001/api/mypage/user",
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      setUser(updatedUser);
-      setPhone("");
-    } catch (err) {
-      toast.error("전화번호 저장 실패");
-    }
   };
 
   const handleConfirmReturn = async () => {
@@ -322,7 +298,10 @@ const Profile = () => {
                       <strong>도서명:</strong> {rental.title}
                     </p>
                     <p>
-                      <strong>ISBN:</strong> {rental.isbn}
+                      <strong>주소:</strong> {rental.address}
+                    </p>
+                    <p>
+                      <strong>전화번호:</strong> {rental.phone}
                     </p>
                     <p>
                       <strong>대여 기간:</strong> {rental.rental_start} ~{" "}

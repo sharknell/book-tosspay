@@ -35,6 +35,9 @@ router.get("/rentals/history/:userId", async (req, res) => {
         rental_start,
         rental_end,
         price,
+      address,
+      phone,  
+      email,
         returned -- returned 값 그대로 가져오기
       FROM rentals
       WHERE user_id = ?
