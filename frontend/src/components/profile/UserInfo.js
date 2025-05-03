@@ -44,11 +44,6 @@ const UserInfo = ({ user, setUser, setShowAddressModal, phone, setPhone }) => {
         <label>이메일</label>
         <input type="email" value={user.email} readOnly />
       </div>
-      {/* 이메일 */}
-      <div className="user-info-item">
-        <label>이름</label>
-        <input type="text" value={user.name} readOnly />
-      </div>
 
       {/* 전화번호 */}
       <div className="user-info-item">

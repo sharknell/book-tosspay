@@ -6,19 +6,18 @@ import DaumPostcode from "react-daum-postcode";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/Register.css";
 
-const Register = ({ showToast }) => {
+const Register = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [address, setAddress] = useState(""); // 주소
-  const [detailAddress, setDetailAddress] = useState(""); // 상세 주소
+  const [address, setAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
   const [isPostcodeModalOpen, setIsPostcodeModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleComplete = (data) => {
-    const fullAddress = data.address;
-    setAddress(fullAddress);
+    setAddress(data.address);
     setIsPostcodeModalOpen(false);
   };
 
@@ -27,16 +26,10 @@ const Register = ({ showToast }) => {
     const fullAddress = `${address} ${detailAddress}`;
 
     try {
-      const data = await registerUser(
-        email,
-        username,
-        password,
-        phoneNumber,
-        fullAddress
-      );
-      toast.success("회원가입 성공! 5초 후 로그인 페이지로 이동합니다.");
+      await registerUser(email, username, password, phoneNumber, fullAddress);
+      toast.success("회원가입 성공! 5초 후 서비스 이용 페이지로 이동합니다.");
       setTimeout(() => {
-        navigate("/login");
+        navigate("/");
       }, 5000);
     } catch (error) {
       toast.error(error.message);
@@ -47,6 +40,9 @@ const Register = ({ showToast }) => {
     <div className="register-container">
       <h2 className="register-title">회원가입</h2>
       <form onSubmit={handleSubmit} className="register-form">
+        <label>
+          이메일 <span className="required">*</span>
+        </label>
         <input
           type="email"
           placeholder="이메일"
@@ -54,6 +50,10 @@ const Register = ({ showToast }) => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+
+        <label>
+          사용자명 <span className="required">*</span>
+        </label>
         <input
           type="text"
           placeholder="사용자명"
@@ -61,6 +61,10 @@ const Register = ({ showToast }) => {
           onChange={(e) => setUsername(e.target.value)}
           required
         />
+
+        <label>
+          비밀번호 <span className="required">*</span>
+        </label>
         <input
           type="password"
           placeholder="비밀번호"
@@ -68,6 +72,10 @@ const Register = ({ showToast }) => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+
+        <label>
+          전화번호 <span className="required">*</span>
+        </label>
         <input
           type="tel"
           placeholder="전화번호 (예: 010-1234-5678)"
@@ -76,8 +84,10 @@ const Register = ({ showToast }) => {
           required
         />
 
-        {/* 주소 검색 버튼 */}
         <div className="address-section">
+          <label>
+            주소 <span className="required">*</span>
+          </label>
           <button
             type="button"
             className="search-address-btn"
@@ -92,6 +102,10 @@ const Register = ({ showToast }) => {
             readOnly
             required
           />
+
+          <label>
+            상세 주소 <span className="required">*</span>
+          </label>
           <input
             type="text"
             placeholder="상세 주소"
@@ -101,7 +115,6 @@ const Register = ({ showToast }) => {
           />
         </div>
 
-        {/* 주소 모달 */}
         {isPostcodeModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">

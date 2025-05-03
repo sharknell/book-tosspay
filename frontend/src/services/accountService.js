@@ -5,9 +5,22 @@ const api = axios.create({
   baseURL: "http://localhost:5001/api", // 백엔드 서버 URL
 });
 
-export const registerUser = async (email, username, password) => {
+export const registerUser = async (
+  email,
+  username,
+  password,
+  phoneNumber,
+  fullAddress
+) => {
   try {
-    const response = await api.post("/register", { email, username, password });
+    const response = await api.post("/register", {
+      email,
+      username,
+      password,
+      phoneNumber,
+      fullAddress,
+    });
+    console.log("accountService:" + response.data);
     return response.data;
   } catch (error) {
     throw new Error("회원가입 실패");

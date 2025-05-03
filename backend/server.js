@@ -11,6 +11,7 @@ const paymentRoutes = require("./src/routes/paymentRoutes");
 const mypageRoutes = require("./src/routes/mypageRoutes");
 const returnRoutes = require("./src/routes/returnRoutes");
 const adminRoutes = require("./src/routes/adminRoutes");
+const authRoutes = require("./src/routes/authRoutes");
 
 const { authenticateToken } = require("./src/middleware/authMiddleware");
 const { initializeBooks } = require("./src/services/bookService");
@@ -19,128 +20,130 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 // 북마크 추가 및 제거 처리
+app.use("/api", authRoutes);
+
 app.use("/api/rentals", rentalsRoutes);
 app.use("/api/books", bookRoutes);
 // 회원가입 API
-app.post("/api/register", async (req, res) => {
-  const { username, email, password, phone, address } = req.body;
+// app.post("/api/register", async (req, res) => {
+//   const { username, email, password, phone, address } = req.body;
 
-  try {
-    // 비밀번호 암호화
-    const hashedPassword = await bcrypt.hash(password, 10);
+//   try {
+//     // 비밀번호 암호화
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 사용자 정보 저장 (phone_number, address 포함)
-    const [result] = await db.query(
-      "INSERT INTO users (username, email, password, phone, address) VALUES (?, ?, ?, ?, ?)",
-      [username, email, hashedPassword, phone, address]
-    );
+//     // 사용자 정보 저장 (phone_number, address 포함)
+//     const [result] = await db.query(
+//       "INSERT INTO users (username, email, password, phone, address) VALUES (?, ?, ?, ?, ?)",
+//       [username, email, hashedPassword, phone, address]
+//     );
 
-    res.status(201).json({ message: "회원가입 성공" });
-  } catch (error) {
-    console.error("회원가입 오류:", error);
-    res.status(500).json({ message: "회원가입 실패" });
-  }
-});
+//     res.status(201).json({ message: "회원가입 성공" });
+//   } catch (error) {
+//     console.error("회원가입 오류:", error);
+//     res.status(500).json({ message: "회원가입 실패" });
+//   }
+// });
 
-app.post("/api/login", async (req, res) => {
-  console.log("로그인 요청:", req.body);
-  const { email, password } = req.body;
+// app.post("/api/login", async (req, res) => {
+//   console.log("로그인 요청:", req.body);
+//   const { email, password } = req.body;
 
-  try {
-    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [
-      email,
-    ]);
+//   try {
+//     const [users] = await db.query("SELECT * FROM users WHERE email = ?", [
+//       email,
+//     ]);
 
-    if (users.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "이메일 또는 비밀번호가 잘못되었습니다." });
-    }
+//     if (users.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ message: "이메일 또는 비밀번호가 잘못되었습니다." });
+//     }
 
-    const user = users[0];
+//     const user = users[0];
 
-    const isMatch = await bcrypt.compare(password, user.password);
+//     const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) {
-      return res
-        .status(400)
-        .json({ message: "이메일 또는 비밀번호가 잘못되었습니다." });
-    }
+//     if (!isMatch) {
+//       return res
+//         .status(400)
+//         .json({ message: "이메일 또는 비밀번호가 잘못되었습니다." });
+//     }
 
-    const accessToken = jwt.sign(
-      { userId: user.id },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "30d" }
-    );
+//     const accessToken = jwt.sign(
+//       { userId: user.id },
+//       process.env.ACCESS_TOKEN_SECRET,
+//       { expiresIn: "30d" }
+//     );
 
-    const refreshToken = jwt.sign(
-      { userId: user.id },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "30d" }
-    );
+//     const refreshToken = jwt.sign(
+//       { userId: user.id },
+//       process.env.REFRESH_TOKEN_SECRET,
+//       { expiresIn: "30d" }
+//     );
 
-    await db.query(
-      "INSERT INTO tokens (user_id, refresh_token) VALUES (?, ?)",
-      [user.id, refreshToken]
-    );
+//     await db.query(
+//       "INSERT INTO tokens (user_id, refresh_token) VALUES (?, ?)",
+//       [user.id, refreshToken]
+//     );
 
-    // ✅ user 정보도 응답에 포함
-    res.json({
-      accessToken,
-      refreshToken,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role, // <- role 포함
-      },
-    });
-    console.log("로그인 정보:", user);
-  } catch (error) {
-    console.error("로그인 오류:", error);
-    res.status(500).json({ message: "로그인 실패" });
-  }
-});
+//     // ✅ user 정보도 응답에 포함
+//     res.json({
+//       accessToken,
+//       refreshToken,
+//       user: {
+//         id: user.id,
+//         username: user.username,
+//         email: user.email,
+//         role: user.role, // <- role 포함
+//       },
+//     });
+//     console.log("로그인 정보:", user);
+//   } catch (error) {
+//     console.error("로그인 오류:", error);
+//     res.status(500).json({ message: "로그인 실패" });
+//   }
+// });
 
 // 리프레시 토큰으로 액세스 토큰 재발급
-app.post("/api/refresh", async (req, res) => {
-  const { refreshToken } = req.body;
+// app.post("/api/refresh", async (req, res) => {
+//   const { refreshToken } = req.body;
 
-  if (!refreshToken) {
-    return res.status(400).json({ message: "리프레시 토큰이 필요합니다." });
-  }
+//   if (!refreshToken) {
+//     return res.status(400).json({ message: "리프레시 토큰이 필요합니다." });
+//   }
 
-  try {
-    // 리프레시 토큰 검증
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+//   try {
+//     // 리프레시 토큰 검증
+//     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
-    // 해당 리프레시 토큰이 DB에 존재하는지 확인
-    const [rows] = await db.query(
-      "SELECT * FROM tokens WHERE user_id = ? AND refresh_token = ?",
-      [decoded.userId, refreshToken]
-    );
+//     // 해당 리프레시 토큰이 DB에 존재하는지 확인
+//     const [rows] = await db.query(
+//       "SELECT * FROM tokens WHERE user_id = ? AND refresh_token = ?",
+//       [decoded.userId, refreshToken]
+//     );
 
-    if (rows.length === 0) {
-      return res
-        .status(403)
-        .json({ message: "리프레시 토큰이 유효하지 않습니다." });
-    }
+//     if (rows.length === 0) {
+//       return res
+//         .status(403)
+//         .json({ message: "리프레시 토큰이 유효하지 않습니다." });
+//     }
 
-    // 액세스 토큰 생성
-    const accessToken = jwt.sign(
-      { userId: decoded.userId },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
-    );
+//     // 액세스 토큰 생성
+//     const accessToken = jwt.sign(
+//       { userId: decoded.userId },
+//       process.env.ACCESS_TOKEN_SECRET,
+//       { expiresIn: "15m" }
+//     );
 
-    res.json({ accessToken });
-    console.log("ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
-    console.log("REFRESH_TOKEN_SECRET:", process.env.REFRESH_TOKEN_SECRET);
-  } catch (error) {
-    console.error("리프레시 토큰 오류:", error);
-    res.status(403).json({ message: "리프레시 토큰이 유효하지 않습니다." });
-  }
-});
+//     res.json({ accessToken });
+//     console.log("ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
+//     console.log("REFRESH_TOKEN_SECRET:", process.env.REFRESH_TOKEN_SECRET);
+//   } catch (error) {
+//     console.error("리프레시 토큰 오류:", error);
+//     res.status(403).json({ message: "리프레시 토큰이 유효하지 않습니다." });
+//   }
+// });
 
 app.use("/api/mypage", mypageRoutes); // 마이페이지 라우트 추가
 
