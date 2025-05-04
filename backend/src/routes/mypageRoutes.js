@@ -163,5 +163,41 @@ router.put("/user/phone", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "서버 오류" });
   }
 });
+router.patch(
+  "/rentals/extend/:order_id",
+  authenticateToken,
+  async (req, res) => {
+    const { order_id } = req.params;
+    const { newEndDate } = req.body;
+
+    console.log("order_id:", order_id);
+
+    if (!order_id || !newEndDate) {
+      return res
+        .status(400)
+        .json({ message: "order_id와 newEndDate는 필수입니다." });
+    }
+
+    try {
+      const [result] = await db.query(
+        "UPDATE rentals SET rental_end = ? WHERE order_id = ? AND user_id = ?",
+        [newEndDate, order_id, req.user.userId]
+      );
+
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ message: "대여 정보를 찾을 수 없습니다." });
+      }
+
+      res
+        .status(200)
+        .json({ message: "대여 종료일이 성공적으로 연장되었습니다." });
+    } catch (error) {
+      console.error("종료일 연장 오류:", error);
+      res.status(500).json({ message: "서버 오류" });
+    }
+  }
+);
 
 module.exports = router;
