@@ -26,35 +26,6 @@
   border-radius: 5px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
 }
-.user-info-container {
-  max-width: 500px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.user-info-item {
-  margin-bottom: 15px;
-}
-
-.user-info-item label {
-  font-size: 14px;
-  color: #555;
-  display: block;
-  margin-bottom: 5px;
-}
-
-.user-info-item input {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-  color: #333;
-}
 
 button {
   background-color: #007bff;
@@ -94,7 +65,7 @@ button:hover {
   align-items: center;
   margin-bottom: 20px;
 }
-
+.profile-section,
 .bookmark-section,
 .rental-history {
   background-color: #fff;

@@ -239,22 +239,20 @@ const Profile = () => {
       <h1 className="profile-title">내 프로필</h1>
 
       {/* 사용자 정보 섹션 */}
-      {/* 사용자 정보 섹션 */}
       <div className="profile-section">
-        <h2
-          onClick={() => setShowUserInfo(!showUserInfo)}
-          style={{ cursor: "pointer" }}
-        >
+        <h2 onClick={() => setShowUserInfo(!showUserInfo)}>
           🙋 내 정보 {showUserInfo ? "▲" : "▼"}
         </h2>
         {showUserInfo && (
-          <UserInfo
-            user={user}
-            setUser={setUser}
-            setShowAddressModal={setShowAddressModal}
-            phone={phone}
-            setPhone={setPhone}
-          />
+          <div className="section-box">
+            <UserInfo
+              user={user}
+              setUser={setUser}
+              setShowAddressModal={setShowAddressModal}
+              phone={phone}
+              setPhone={setPhone}
+            />
+          </div>
         )}
       </div>
 
