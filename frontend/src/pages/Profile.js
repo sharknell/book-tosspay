@@ -236,7 +236,6 @@ const Profile = () => {
         )}
       </div>
 
-      {/* 북마크 섹션 */}
       <div className="bookmark-section">
         <h2 onClick={handleShowBookmarks} style={{ cursor: "pointer" }}>
           ⭐ 내가 북마크한 도서 {showBookmarks ? "▲" : "▼"}
@@ -246,32 +245,32 @@ const Profile = () => {
             {bookmarks.length === 0 ? (
               <p>북마크한 도서가 없습니다.</p>
             ) : (
-              <ul className="bookmark-list">
+              <div className="bookmark-cards-container">
                 {bookmarks.map((book) => (
-                  <li key={book.id} className="bookmark-item">
-                    <p>
-                      <strong>도서명:</strong>{" "}
-                      <a
-                        href={`/books-list/${book.id}`}
-                        className="bookmark-link"
-                      >
-                        {book.title}
-                      </a>
-                    </p>
-                    <p>
-                      <strong>저자:</strong> {book.author}
-                    </p>
-                    <p>
-                      <strong>출판사:</strong> {book.publisher}
-                    </p>
+                  <div key={book.id} className="bookmark-card">
                     <img
                       src={book.cover_image || "/default-thumbnail.jpg"}
                       alt={book.title}
-                      className="bookmark-image"
+                      className="bookmark-card-image"
                     />
-                  </li>
+                    <div className="bookmark-card-content">
+                      <h3 className="bookmark-card-title">{book.title}</h3>
+                      <p className="bookmark-card-author">
+                        <strong>저자:</strong> {book.author}
+                      </p>
+                      <p className="bookmark-card-publisher">
+                        <strong>출판사:</strong> {book.publisher}
+                      </p>
+                      <a
+                        href={`/books-list/${book.id}`}
+                        className="bookmark-card-link"
+                      >
+                        도서 상세보기
+                      </a>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         )}

@@ -6,7 +6,8 @@ import "../styles/BookList.css"; // CSS 파일 import
 
 const BookList = () => {
   const { user } = useAuth();
-  const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState([]); // 전체 도서 데이터를 저장
+  const [displayedBooks, setDisplayedBooks] = useState([]); // 현재 페이지에 표시할 도서 목록
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState(""); // 검색어 기본값은 빈 문자열
@@ -14,17 +15,19 @@ const BookList = () => {
   const booksPerPage = 8;
 
   useEffect(() => {
-    fetchBooks(query, page); // ✅ 조건 없이 항상 검색어에 따라 로드
-  }, [query, page]);
+    fetchBooks(query); // 검색어에 맞춰 도서 목록 한 번에 로드
+  }, [query]);
 
-  const fetchBooks = (searchQuery, currentPage) => {
+  const fetchBooks = (searchQuery) => {
     setLoading(true);
-    getBooks(searchQuery, currentPage, booksPerPage) // 검색어에 맞춰 도서 목록 로드
+    getBooks(searchQuery, 1, 100) // 100개 이상의 데이터를 한 번에 가져옴
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setBooks(data);
+          setDisplayedBooks(data.slice(0, booksPerPage)); // 첫 페이지 데이터 설정
         } else {
           setBooks([]);
+          setDisplayedBooks([]);
         }
         setLoading(false);
       })
@@ -42,19 +45,34 @@ const BookList = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setPage(1); // 페이지를 첫 페이지로 리셋
-    fetchBooks(query, 1); // 검색어로 도서 목록 로드
+    fetchBooks(query); // 검색어로 도서 목록 로드
   };
 
   const handleNextPage = () => {
-    setPage((prevPage) => prevPage + 1);
+    setPage((prevPage) => {
+      const newPage = prevPage + 1;
+      setDisplayedBooks(
+        books.slice(
+          newPage * booksPerPage - booksPerPage,
+          newPage * booksPerPage
+        )
+      );
+      return newPage;
+    });
   };
 
   const handlePrevPage = () => {
-    setPage((prevPage) => Math.max(prevPage - 1, 1));
+    setPage((prevPage) => {
+      const newPage = Math.max(prevPage - 1, 1);
+      setDisplayedBooks(
+        books.slice(
+          newPage * booksPerPage - booksPerPage,
+          newPage * booksPerPage
+        )
+      );
+      return newPage;
+    });
   };
-
-  const startIndex = (page - 1) * booksPerPage;
-  const displayedBooks = books.slice(startIndex, startIndex + booksPerPage);
 
   return (
     <div className="container">
@@ -94,7 +112,7 @@ const BookList = () => {
         <span>{page}</span>
         <button
           onClick={handleNextPage}
-          disabled={startIndex + booksPerPage >= books.length}
+          disabled={page * booksPerPage >= books.length}
         >
           다음
         </button>

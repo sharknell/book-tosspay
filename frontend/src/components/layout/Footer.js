@@ -1,10 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { useAuth } from "../../context/authContext";
 import "../../styles/Footer.css"; // CSS 파일 import
 
 const Footer = () => {
   const { accessToken } = useAuth();
+  const githubUrl = "https://github.com/sharknell"; // 여기에 본인의 GitHub 주소 입력
 
   return (
     <footer className="footer-container">
@@ -12,30 +12,55 @@ const Footer = () => {
         <nav className="footer-nav">
           <ul>
             <li>
-              <Link to="/about" className="link">
+              <a
+                href={githubUrl}
+                className="link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 About Us
-              </Link>
+              </a>
             </li>
             <li>
-              <Link to="/contact" className="link">
+              <a
+                href={githubUrl}
+                className="link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Contact
-              </Link>
+              </a>
             </li>
             <li>
-              <Link to="/terms" className="link">
+              <a
+                href={githubUrl}
+                className="link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Terms of Service
-              </Link>
+              </a>
             </li>
             <li>
-              <Link to="/privacy" className="link">
+              <a
+                href={githubUrl}
+                className="link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Privacy Policy
-              </Link>
+              </a>
             </li>
             {accessToken && (
               <li>
-                <Link to="/profile" className="link">
+                <a
+                  href={githubUrl}
+                  className="link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   My Profile
-                </Link>
+                </a>
               </li>
             )}
           </ul>
@@ -50,4 +75,3 @@ const Footer = () => {
 };
 
 export default Footer;
-// Compare this snippet from frontend/src/components/Footer.css:
