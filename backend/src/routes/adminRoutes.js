@@ -147,7 +147,6 @@ router.get("/rentals", authenticateToken, async (req, res) => {
       JOIN users ON rentals.user_id = users.id`
     );
     res.json(rentals);
-    console.log("대여 내역 조회 성공:", rentals);
   } catch (error) {
     console.error("대여 내역을 가져오는 데 오류가 발생했습니다:", error);
     res.status(500).json({ message: "대여 내역을 가져오는 데 실패했습니다." });
@@ -222,6 +221,49 @@ router.delete("/rentals/:id", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("대여 내역 삭제 중 오류가 발생했습니다:", error);
     res.status(500).json({ message: "대여 내역 삭제 중 오류가 발생했습니다." });
+  }
+});
+
+// 책 수정
+router.put("/books/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const {
+    title,
+    author,
+    publisher,
+    published_date,
+    translators,
+    price,
+    sale_price,
+  } = req.body;
+
+  if (!title || !author || !publisher || !price) {
+    return res.status(400).json({ message: "모든 필드를 채워주세요." });
+  }
+
+  try {
+    const [result] = await db.query(
+      "UPDATE books SET title = ?, author = ?, publisher = ?, published_date = ?, translators = ?, price = ?, sale_price = ? WHERE id = ?",
+      [
+        title,
+        author,
+        publisher,
+        published_date,
+        translators,
+        price,
+        sale_price,
+        id,
+      ]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "책을 찾을 수 없습니다." });
+    }
+
+    res.json({ message: "책이 수정되었습니다." });
+  } catch (error) {
+    console.error("책 수정 중 오류가 발생했습니다:", error);
+    res.status(500).json({ message: "책 수정 중 오류가 발생했습니다." });
   }
 });
 

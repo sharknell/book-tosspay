@@ -1,20 +1,108 @@
-.table-container {
-  max-height: 400px; /* 원하는 높이 설정 */
-  overflow-y: auto; /* 세로 스크롤 활성화 */
+/* 기본 책 테이블 스타일 */
+.books-table-wrapper {
+  padding: 1rem;
 }
 
-.table {
+.scrollable-table-container {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.books-table {
   width: 100%;
+  min-width: 800px;
   border-collapse: collapse;
+  font-size: 14px;
 }
 
-.table th,
-.table td {
+.books-table th,
+.books-table td {
   padding: 10px;
   text-align: left;
-  border: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  word-break: break-word;
 }
 
-.table th {
-  background-color: #f4f4f4;
+.books-table th {
+  background-color: #f9f9f9;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.discounted {
+  color: #d32f2f;
+  font-weight: bold;
+}
+
+/* 수정 폼 스타일 */
+.edit-book-form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.edit-book-form h3 {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  color: #333;
+  text-align: center;
+}
+
+.edit-book-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-book-form label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.edit-book-form input[type="text"],
+.edit-book-form input[type="number"],
+.edit-book-form input[type="date"] {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.edit-book-form input[type="text"]:focus,
+.edit-book-form input[type="number"]:focus,
+.edit-book-form input[type="date"]:focus {
+  border-color: #4caf50;
+}
+
+.edit-book-form button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-book-form button:hover {
+  background-color: #45a049;
+}
+
+.edit-book-form button:focus {
+  outline: none;
 }

@@ -99,7 +99,7 @@ const AdminDashboard = () => {
       <h1>Admin Dashboard</h1>
       <hr />
       <AdminReturnSpots />
-      <BooksTable books={books} />
+      <BooksTable books={books} setBooks={setBooks} />
       <UsersTable users={users} onUserClick={handleUserClick} />
 
       {selectedUser && (
