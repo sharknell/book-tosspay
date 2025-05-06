@@ -9,7 +9,7 @@ const BookItem = ({ book }) => {
 
   if (loading) return <div>로딩 중...</div>;
 
-  const thumbnail = book.thumbnail || book.cover_image || "/logo192.png";
+  const thumbnail = book.thumbnail || book.cover_image || "";
   const title = book.title || "제목 없음";
   const author = Array.isArray(book.authors)
     ? book.authors.join(", ")

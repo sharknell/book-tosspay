@@ -1,7 +1,7 @@
 import React from "react";
 import "../../styles/UsersTable.css"; // CSS 파일을 import
 
-const UsersTable = ({ users }) => {
+const UsersTable = ({ users, onUserClick }) => {
   return (
     <div>
       <h2>Users Table</h2>
@@ -16,7 +16,11 @@ const UsersTable = ({ users }) => {
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={user.id}>
+            <tr
+              key={user.id}
+              onClick={() => onUserClick(user.id)}
+              style={{ cursor: "pointer" }}
+            >
               <td>{user.id}</td>
               <td>{user.username}</td>
               <td>{user.email}</td>

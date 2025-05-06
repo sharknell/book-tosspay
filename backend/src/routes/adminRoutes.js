@@ -138,5 +138,91 @@ router.delete("/spots/:id", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "반납 위치 삭제 실패" });
   }
 });
+// 모든 대여 내역 가져오기
+router.get("/rentals", authenticateToken, async (req, res) => {
+  try {
+    const [rentals] = await db.query(
+      `SELECT rentals.id, users.username, rentals.book_id, rentals.title, rentals.price, rentals.rental_start, rentals.rental_end, rentals.returned, rentals.return_location, rentals.address 
+      FROM rentals
+      JOIN users ON rentals.user_id = users.id`
+    );
+    res.json(rentals);
+    console.log("대여 내역 조회 성공:", rentals);
+  } catch (error) {
+    console.error("대여 내역을 가져오는 데 오류가 발생했습니다:", error);
+    res.status(500).json({ message: "대여 내역을 가져오는 데 실패했습니다." });
+  }
+});
+
+// 특정 대여 내역 가져오기 (대여 ID로)
+router.get("/rentals/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rental] = await db.query(
+      `SELECT rentals.id, users.username, rentals.book_id, rentals.title, rentals.price, rentals.rental_start, rentals.rental_end, rentals.returned, rentals.return_location, rentals.address 
+      FROM rentals
+      JOIN users ON rentals.user_id = users.id
+      WHERE rentals.id = ?`,
+      [id]
+    );
+
+    if (rental.length === 0) {
+      return res.status(404).json({ message: "대여 내역을 찾을 수 없습니다." });
+    }
+
+    res.json(rental[0]);
+  } catch (error) {
+    console.error("대여 내역 조회 중 오류가 발생했습니다:", error);
+    res.status(500).json({ message: "대여 내역 조회 중 오류가 발생했습니다." });
+  }
+});
+
+// 대여 내역 수정 (반납 처리 등)
+router.put("/rentals/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { returned, return_location, address } = req.body;
+
+  if (returned === undefined || !return_location || !address) {
+    return res
+      .status(400)
+      .json({ message: "필요한 정보를 모두 입력해주세요." });
+  }
+
+  try {
+    const [result] = await db.query(
+      `UPDATE rentals 
+      SET returned = ?, return_location = ?, address = ? 
+      WHERE id = ?`,
+      [returned, return_location, address, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "대여 내역을 찾을 수 없습니다." });
+    }
+
+    res.json({ message: "대여 내역이 수정되었습니다." });
+  } catch (error) {
+    console.error("대여 내역 수정 중 오류가 발생했습니다:", error);
+    res.status(500).json({ message: "대여 내역 수정 중 오류가 발생했습니다." });
+  }
+});
+
+// 대여 내역 삭제
+router.delete("/rentals/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.query("DELETE FROM rentals WHERE id = ?", [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "대여 내역을 찾을 수 없습니다." });
+    }
+
+    res.json({ message: "대여 내역이 삭제되었습니다." });
+  } catch (error) {
+    console.error("대여 내역 삭제 중 오류가 발생했습니다:", error);
+    res.status(500).json({ message: "대여 내역 삭제 중 오류가 발생했습니다." });
+  }
+});
 
 module.exports = router;

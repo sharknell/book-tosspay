@@ -38,8 +38,9 @@ const Register = () => {
 
   return (
     <div className="register-container">
-      <h2 className="register-title">회원가입</h2>
       <form onSubmit={handleSubmit} className="register-form">
+        <h2 className="register-title">회원가입</h2>
+
         <label>
           이메일 <span className="required">*</span>
         </label>

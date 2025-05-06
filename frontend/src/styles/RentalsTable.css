@@ -1,0 +1,133 @@
+/* RentalsTable.css */
+
+/* 테이블 전체 스타일 */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-family: "Arial", sans-serif;
+  overflow-x: auto; /* 테이블이 너무 넓을 경우 가로 스크롤 활성화 */
+}
+
+.table th,
+.table td {
+  padding: 12px 15px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.table th {
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+}
+
+.table td {
+  background-color: #f9f9f9;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.table tr:hover {
+  background-color: #e9f7e6;
+  cursor: pointer;
+}
+
+/* 테이블 제목 스타일 */
+h2 {
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* 가격 컬럼 스타일 */
+.table td:nth-child(4) {
+  font-weight: bold;
+  color: #4caf50;
+}
+
+/* 반환 여부 컬럼 스타일 */
+.table td:nth-child(7) {
+  font-weight: bold;
+}
+
+.table td:nth-child(7)[data-returned="yes"] {
+  color: green;
+}
+
+.table td:nth-child(7)[data-returned="no"] {
+  color: red;
+}
+
+/* 반납 위치와 주소 컬럼 스타일 */
+.table td:nth-child(8),
+.table td:nth-child(9) {
+  font-style: italic;
+  color: #666;
+}
+
+/* 반납 위치가 비어있을 때 스타일 */
+.table td:nth-child(8) {
+  color: #ff6b6b;
+}
+
+/* 작은 화면에서 테이블 크기 조정 */
+@media (max-width: 768px) {
+  .table th,
+  .table td {
+    padding: 8px;
+  }
+
+  .table th {
+    font-size: 14px;
+  }
+
+  .table td {
+    font-size: 12px;
+  }
+
+  /* 테이블을 가로 스크롤 가능하도록 */
+  .table {
+    display: block;
+    overflow-x: scroll;
+    white-space: nowrap;
+  }
+
+  /* 제목 크기 조정 */
+  h2 {
+    font-size: 20px;
+  }
+
+  /* 반응형에서는 각 컬럼을 보기 쉽게 표시하기 위해 text-align을 왼쪽으로 변경 */
+  .table td {
+    text-align: left;
+  }
+}
+
+/* 모바일 화면에서 더 작은 테이블 스타일 */
+@media (max-width: 480px) {
+  .table th,
+  .table td {
+    padding: 6px;
+  }
+
+  .table th {
+    font-size: 12px;
+  }
+
+  .table td {
+    font-size: 10px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  .table td {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

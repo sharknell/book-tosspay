@@ -10,19 +10,18 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ user 제거
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const user = await login(email, password); // ✅ 한 번만 호출
+    const user = await login(email, password);
     setLoading(false);
 
     if (user) {
       toast.success("✅ 로그인 성공!");
       setTimeout(() => {
-        console.log("user role:", user.role); // 디버깅용 출력
         if (user.role === "admin") {
           navigate("/admindashboard");
         } else {

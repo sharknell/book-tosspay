@@ -66,26 +66,6 @@ const Profile = () => {
     fetchUserData();
   }, [accessToken, refreshAccessToken]);
 
-  const handleExtendRental = async (rental) => {
-    const newEndDate = new Date(rental.rental_end);
-    newEndDate.setDate(newEndDate.getDate() + 7); // 기존 날짜에서 7일 연장
-    const formattedDate = newEndDate.toISOString().split("T")[0]; // YYYY-MM-DD
-
-    try {
-      await axios.patch(
-        `http://localhost:5001/api/mypage/rentals/extend/${rental.order_id}`,
-        { newEndDate: formattedDate }, // ✅ 필수 데이터 전송
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      toast.success("대여 종료일이 연장되었습니다!");
-      fetchRentalHistory(user.id);
-    } catch (err) {
-      toast.error("종료일 연장 실패");
-    }
-  };
-
   const handleSaveAddress = async () => {
     const fullAddress = `${address} ${detailAddress}`;
     try {
@@ -332,16 +312,6 @@ const Profile = () => {
                     >
                       {isReturnCompleted(rental) ? "✅ 반납 완료" : "반납하기"}
                     </button>
-                    {!isReturnCompleted(rental) && (
-                      <>
-                        <p className="extend-notice">
-                          ※ 연장 버튼 클릭 시 1회당 7일 연장됩니다.
-                        </p>
-                        <button onClick={() => handleExtendRental(rental)}>
-                          종료일 연장하기
-                        </button>
-                      </>
-                    )}
                   </li>
                 ))}
               </ul>

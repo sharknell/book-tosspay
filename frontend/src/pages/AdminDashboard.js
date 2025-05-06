@@ -2,92 +2,151 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/authContext";
 import AdminReturnSpots from "../components/admin/AdminReturnSpots";
-import BooksTable from "../components/admin/BooksTable"; // BooksTable 컴포넌트 불러오기
-import UsersTable from "../components/admin/UsersTable"; // UsersTable 컴포넌트 불러오기
+import BooksTable from "../components/admin/BooksTable";
+import UsersTable from "../components/admin/UsersTable";
+import RentalsTable from "../components/admin/RentalsTable";
 
 const AdminDashboard = () => {
-  const { accessToken, user, login, logout, loading } = useAuth(); // AuthContext에서 필요한 값들 불러옴
+  const { accessToken, loading } = useAuth();
   const [books, setBooks] = useState([]);
   const [spots, setSpots] = useState([]);
+  const [rentals, setRentals] = useState([]);
   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null); // 유저 객체 전체 저장
   const [error, setError] = useState(null);
 
-  // 반납 위치 불러오기
-  const fetchSpots = async () => {
-    try {
-      const res = await axios.get("http://localhost:5001/api/admin/spots");
-      setSpots(res.data);
-    } catch (err) {
-      setError("반납 위치 불러오기 실패");
+  const handleUserClick = (userId) => {
+    const user = users.find((u) => u.id === userId);
+    if (user) {
+      setSelectedUser(user);
     }
   };
 
-  useEffect(() => {
-    fetchSpots();
-  }, []);
+  const filteredRentals = selectedUser
+    ? rentals.filter((rental) => rental.username === selectedUser.username)
+    : rentals;
 
-  // 책 데이터 가져오기
+  useEffect(() => {
+    if (accessToken) {
+      fetchBooks();
+      fetchUsers();
+      fetchRentals();
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (selectedUser) {
+      const filtered = rentals.filter(
+        (rental) => String(rental.userId) === String(selectedUser.id)
+      );
+      console.log("선택된 유저 ID:", selectedUser.id);
+      console.log("필터된 대여 내역:", filtered);
+    }
+  }, [selectedUser, rentals]);
+
+  const fetchRentals = async () => {
+    try {
+      const res = await axios.get("http://localhost:5001/api/admin/rentals", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      setRentals(res.data);
+    } catch (error) {
+      setError("대여 내역을 불러오는 데 실패했습니다.");
+    }
+  };
+
   const fetchBooks = async () => {
     try {
       const response = await axios.get(
         "http://localhost:5001/api/admin/books",
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`, // JWT 토큰을 Authorization 헤더에 포함
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
       setBooks(response.data);
     } catch (error) {
-      console.error("책 데이터를 가져오는 데 실패했습니다:", error);
       setError("책 데이터를 가져오는 데 실패했습니다.");
     }
   };
 
-  // 사용자 데이터 가져오기
   const fetchUsers = async () => {
     try {
       const response = await axios.get(
         "http://localhost:5001/api/admin/users",
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`, // JWT 토큰을 Authorization 헤더에 포함
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
       setUsers(response.data);
     } catch (error) {
-      console.error("사용자 데이터를 가져오는 데 실패했습니다:", error);
       setError("사용자 데이터를 가져오는 데 실패했습니다.");
     }
   };
 
-  useEffect(() => {
-    if (accessToken) {
-      fetchBooks();
-      fetchUsers();
-    }
-  }, [accessToken]); // accessToken이 바뀔 때마다 데이터 새로 불러옴
-
-  if (loading) {
-    return <div>로딩 중...</div>;
-  }
-
-  if (!accessToken) {
+  if (loading) return <div>로딩 중...</div>;
+  if (!accessToken)
     return <div>로그인 후 관리자 대시보드에 접근할 수 있습니다.</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+  if (error) return <div>{error}</div>;
 
   return (
     <div>
       <h1>Admin Dashboard</h1>
-      <p>Welcome to the admin dashboard!</p>
+      <hr />
       <AdminReturnSpots />
-      <BooksTable books={books} /> {/* BooksTable 컴포넌트 추가 */}
-      <UsersTable users={users} /> {/* UsersTable 컴포넌트 추가 */}
+      <BooksTable books={books} />
+      <UsersTable users={users} onUserClick={handleUserClick} />
+
+      {selectedUser && (
+        <div
+          style={{
+            marginTop: "2rem",
+            border: "1px solid #ccc",
+            padding: "1rem",
+          }}
+        >
+          <h3>선택한 유저 정보</h3>
+          <form>
+            <div>
+              <label>ID: </label>
+              <input type="text" value={selectedUser.id} readOnly />
+            </div>
+            <div>
+              <label>Username: </label>
+              <input type="text" value={selectedUser.username} readOnly />
+            </div>
+            <div>
+              <label>Email: </label>
+              <input type="text" value={selectedUser.email} readOnly />
+            </div>
+            <div>
+              <label>Role: </label>
+              <input type="text" value={selectedUser.role} readOnly />
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedUser(null)}
+              style={{ marginTop: "1rem" }}
+            >
+              닫기
+            </button>
+          </form>
+
+          <div style={{ marginTop: "2rem" }}>
+            <h4>{selectedUser.username} 님의 대여 내역</h4>
+            {filteredRentals.length > 0 ? (
+              <RentalsTable rentals={filteredRentals} />
+            ) : (
+              <p>대여 내역이 없습니다.</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
