@@ -67,9 +67,11 @@
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
+
 .register-btn {
   margin-bottom: 14px;
 }
+
 link:hover,
 .logout-btn:hover,
 .register-btn:hover {
@@ -86,20 +88,26 @@ link:hover,
   color: #444;
 }
 
-/* ✅ 반응형 스타일 */
+/* 📱 모바일 환경에서 헤더 sticky 해제 */
 @media (max-width: 768px) {
+  .header {
+    position: static; /* sticky 해제 */
+  }
+
   .header-container {
     flex-direction: column;
-    gap: 12px;
+    gap: 4px;
+    margin-bottom: 20px;
   }
 
   .nav-links ul {
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
   }
 
   .header-title {
     font-size: 24px;
+    margin-bottom: 8px;
   }
 
   .link,
@@ -108,6 +116,7 @@ link:hover,
     font-size: 14px;
     padding: 8px 16px;
   }
+
   .welcome {
     font-size: 14px;
   }
